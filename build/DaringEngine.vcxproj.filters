@@ -7,6 +7,9 @@
     <ClCompile Include="D:\Progettini\DaringEngine\src\scripts\classes\entity.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="D:\Progettini\DaringEngine\src\scripts\engine\language.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="D:\Progettini\DaringEngine\CMakeLists.txt" />

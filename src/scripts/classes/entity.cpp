@@ -3,6 +3,7 @@
 
 Entity::Entity(int id, float pos_x, float pos_y, float size_x, float size_y, std::string image_path, SDL_Renderer* renderer) {
     this->id = id;
+    this->moving = false;
     this->pos_x = pos_x;
     this->pos_y = pos_y;
     this->size_x = size_x;
@@ -40,4 +41,36 @@ void Entity::set_pos_x(float x) {
 
 void Entity::set_pos_y(float y) {
     this->pos_y = y;
+}
+
+void Entity::set_moving(bool mov) {
+    this->moving = mov;
+}
+
+bool Entity::get_moving() {
+    return this->moving;
+}
+
+float Entity::get_target_x() {
+    return this->target_x;
+}
+
+void Entity::set_target_x(float tx) {
+    this->target_x = tx;
+}
+
+float Entity::get_target_y() {
+    return this->target_y;
+}
+
+void Entity::set_target_y(float ty) {
+    this->target_y = ty;
+}
+
+int Entity::get_current_dir() {
+    return this->current_dir;
+}
+
+void Entity::set_current_dir(int dir) {
+    this->current_dir = dir;
 }

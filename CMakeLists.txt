@@ -17,7 +17,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_CURRENT_SOURCE_DIR})
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_CURRENT_SOURCE_DIR})
 
 # 4. Definizione dell'eseguibile
-add_executable(DaringEngine main.cpp src/scripts/classes/entity.cpp)
+add_executable(DaringEngine main.cpp src/scripts/classes/entity.cpp src/scripts/engine/language.cpp)
 
 # 5. ATTIVAZIONE INCLUDE (Fondamentale per risolvere l'errore C1083)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)

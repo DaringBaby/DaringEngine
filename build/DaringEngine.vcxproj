@@ -363,6 +363,7 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
   <ItemGroup>
     <ClCompile Include="D:\Progettini\DaringEngine\main.cpp" />
     <ClCompile Include="D:\Progettini\DaringEngine\src\scripts\classes\entity.cpp" />
+    <ClCompile Include="D:\Progettini\DaringEngine\src\scripts\engine\language.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="D:\Progettini\DaringEngine\build\ZERO_CHECK.vcxproj">

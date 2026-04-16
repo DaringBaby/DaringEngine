@@ -1,23 +1,24 @@
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
 #include <SDL3/SDL_test_font.h>
-#include <iostream>
 #include <string>
+#include <vector>
 #include "SDL3/SDL_log.h"
 #include "SDL3/SDL_rect.h"
 #include "SDL3/SDL_render.h"
-#include "scripts/classes/entity.h"
-
+#include "scripts/engine/language.h"
 #define NPC_OFFSET 216
-#define UP 1
-#define RIGHT 2
-#define DOWN 3
-#define LEFT 4
+#define RIGHT 1
+#define LEFT 2
+#define UP 3
+#define DOWN 4
 uint8_t player_facing;
 
 
 Uint64 last_time = SDL_GetTicksNS();
 float delta_time = 0.0f;
+
+std::vector<Entity> npcs;
 
 uint8_t map[15][15] = {
     {23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23},
@@ -38,9 +39,9 @@ uint8_t map[15][15] = {
 };
 
 uint8_t tile_walkable_tresh = 5;
-
+void npc_movement();
 void check_npc(Entity& entity);
-void set_npc_in_map(Entity npc);
+void set_npc_in_map(Entity& npc);
 void draw_ui(SDL_Renderer* renderer, SDL_FRect barraUI);
 void movement(Entity& entity);
 void smooth_movement(int dir, float& x, float& y, float target_x, float target_y, float dt);
@@ -56,17 +57,19 @@ int main(int argc, char* argv[]) {
     SDL_SetRenderVSync(renderer, 1);
 
     Entity entity(0, 128, 128, 32, 32, "img/sprites/prova/prova.bmp", renderer);
-    Entity npc(0, 160, 160, 32, 32, "img/sprites/prova/pg2.bmp", renderer);
+    Entity npc = Entity(1, 160, 160, 32, 32, "img/sprites/prova/pg2.bmp", renderer);
     SDL_FRect barraUI = { 0.0f, 400.0f, 800.0f, 200.0f };
+
+    npcs.push_back(npc);
 
     SDL_Surface* surface = SDL_LoadBMP("img/sprites/prova/tiles.bmp");
     SDL_Texture* tileset = SDL_CreateTextureFromSurface(renderer, surface);
 
     bool running = true;
-    bool intro_fatta = true; // Impostato a true per saltare il debug text se vuoi testare subito
+    bool intro_fatta = true;
     SDL_Event event;
 
-    set_npc_in_map(npc);
+    set_npc_in_map(npcs[0]);
 
     player_facing = DOWN;
 
@@ -90,7 +93,7 @@ int main(int argc, char* argv[]) {
 
         // movement
         movement(entity);
-
+        npc_movement();
 
         // DISEGNO
         SDL_SetRenderDrawColor(renderer, 50, 50, 50, 255);
@@ -99,7 +102,11 @@ int main(int argc, char* argv[]) {
         draw_map(renderer, tileset);
 
         entity.render(renderer);
-        npc.render(renderer);
+
+        for (Entity& n : npcs) {
+            n.render(renderer);
+        }
+
         draw_ui(renderer, barraUI);
 
         SDL_RenderPresent(renderer);
@@ -110,19 +117,19 @@ int main(int argc, char* argv[]) {
 }
 
 void smooth_movement(int dir, float& x, float& y, float target_x, float target_y, float dt) {
-    float speed = 160.0f; // 32 pixel in 0.1s
+    float speed = 160.0f;
     float step = speed * dt;
 
-    if (dir == 1) { // Destra
+    if (dir == RIGHT) {
         x += step;
         if (x >= target_x) x = target_x;
-    } else if (dir == 2) { // Sinistra
+    } else if (dir == LEFT) {
         x -= step;
         if (x <= target_x) x = target_x;
-    } else if (dir == 3) { // Su
+    } else if (dir == UP) {
         y -= step;
         if (y <= target_y) y = target_y;
-    } else if (dir == 4) { // Giù
+    } else if (dir == DOWN) {
         y += step;
         if (y >= target_y) y = target_y;
     }
@@ -132,15 +139,15 @@ bool check_collision(float x, float y, int dir) {
     int next_x = (int)x;
     int next_y = (int)y;
 
-    if (dir == 1) next_x += 32;
-    if (dir == 2) next_x -= 32;
-    if (dir == 3) next_y -= 32;
-    if (dir == 4) next_y += 32;
+    if (dir == RIGHT) next_x += 32;
+    if (dir == LEFT) next_x -= 32;
+    if (dir == UP) next_y -= 32;
+    if (dir == DOWN) next_y += 32;
 
-    // Controllo bordi mappa per sicurezza
+
     if (next_x < 0 || next_x >= 480 || next_y < 0 || next_y >= 480) return true;
 
-    // Se il valore è > della soglia (22 o 23), è un muro
+
     if (map[next_y / 32][next_x / 32] > tile_walkable_tresh) {
         return true;
     }
@@ -205,7 +212,7 @@ void movement(Entity &entity) {
         }
     }
 
-    // AGGIORNAMENTO POSIZIONE
+
     if (moving) {
         float x = entity.get_pos_x();
         float y = entity.get_pos_y();
@@ -215,7 +222,7 @@ void movement(Entity &entity) {
         entity.set_pos_x(x);
         entity.set_pos_y(y);
 
-        // Snap finale per precisione griglia
+
         if (x == target_x && y == target_y) {
             moving = false;
         }
@@ -227,7 +234,7 @@ void draw_ui(SDL_Renderer* renderer, SDL_FRect barraUI) {
     SDL_RenderFillRect(renderer, &barraUI);
 }
 
-void set_npc_in_map(Entity npc) {
+void set_npc_in_map(Entity& npc) {
     uint8_t x_pos = (int)npc.get_pos_x()/32;
     uint8_t y_pos = (int)npc.get_pos_y()/32;
     map[y_pos][x_pos] = NPC_OFFSET + npc.get_id();
@@ -256,7 +263,34 @@ void check_npc(Entity& entity) {
             target_y_pos = y_pos;
     }
     if (map[target_y_pos][target_x_pos] >= NPC_OFFSET) {
-        SDL_Log("Interacted!");
+        int target_id = map[target_y_pos][target_x_pos] - NPC_OFFSET;
+        for (Entity& n : npcs) {
+            if (n.get_id() == target_id) {
+                move_npc_request(n, UP);
+                break;
+            }
+        }
+
     }
     return;
+}
+
+
+void npc_movement() {
+    for (Entity& n : npcs) {
+        if (n.get_moving()) {
+            float cur_x = n.get_pos_x();
+            float cur_y = n.get_pos_y();
+
+            smooth_movement(n.get_current_dir(), cur_x, cur_y, n.get_target_x(), n.get_target_y(), delta_time);
+
+            n.set_pos_x(cur_x);
+            n.set_pos_y(cur_y);
+            if (SDL_fabsf(cur_x - n.get_target_x()) < 0.1f && SDL_fabsf(cur_y - n.get_target_y()) < 0.1f) {
+                n.set_pos_x(n.get_target_x());
+                n.set_pos_y(n.get_target_y());
+                n.set_moving(false);
+            }
+        }
+    }
 }
