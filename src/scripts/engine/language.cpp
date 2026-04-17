@@ -1,4 +1,5 @@
 #include "scripts/engine/language.h"
+#include <fstream>
 
 // SCRIPTING LANGUAGE
 // COMMANDS:
@@ -17,6 +18,7 @@
 // IFMULT@FLAG_ID1@FLAG_ID2@...: check multiple flags
 // >COMMAND: indentation
 // MSG@MESSAGE: message
+// DISAPPEAR: scompare
 // END: end script
 
 #define NPC_OFFSET 216
@@ -24,6 +26,52 @@
 #define LEFT 2
 #define UP 3
 #define DOWN 4
+
+static Script ctx;
+
+void script_load(std::string path, Entity* npc) {
+    ctx.lines.clear();
+    std::ifstream file(path);
+    std::string line;
+    while (std::getline(file, line)) {
+        if (!line.empty()) ctx.lines.push_back(line);
+    }
+    ctx.targetNpc = npc;
+    ctx.currentLine = 0;
+    ctx.active = true;
+    ctx.waitingForInput = false;
+    ctx.waitingForMove = false;
+}
+
+void script_update() {
+    if (!ctx.active || ctx.waitingForInput) return;
+
+    if (ctx.waitingForMove) {
+        if (!ctx.targetNpc->get_moving()) {
+            ctx.waitingForMove = false;
+            ctx.currentLine++;
+        }
+        return;
+    }
+
+    if (ctx.currentLine >= ctx.lines.size()) {
+        return;
+    }
+
+    std::string cmd = ctx.lines[ctx.currentLine];
+
+    // esecuzione comandi
+
+}
+
+void script_next() {
+    if (ctx.active && ctx.waitingForInput) {
+        ctx.waitingForInput = false;
+        ctx.currentLine++;
+        // ui_close_message();
+    }
+}
+
 
 void move_up(Entity* npc)    { move_npc_request(*npc, UP); }
 void move_down(Entity* npc)  { move_npc_request(*npc, DOWN); }
