@@ -1,4 +1,5 @@
 #include "scripts/engine/language.h"
+#include "scripts/engine/ui.h"
 #include <fstream>
 
 // SCRIPTING LANGUAGE
@@ -59,16 +60,55 @@ void script_update() {
     }
 
     std::string cmd = ctx.lines[ctx.currentLine];
-
+    can_move = false;
     // esecuzione comandi
-
+    if (cmd == "UP") {
+        move_npc_request(*ctx.targetNpc, UP);
+        ctx.waitingForMove = true;
+    }
+    else if (cmd == "DOWN") {
+        move_npc_request(*ctx.targetNpc, DOWN);
+        ctx.waitingForMove = true;
+    }
+    else if (cmd == "LEFT") {
+        move_npc_request(*ctx.targetNpc, LEFT);
+        ctx.waitingForMove = true;
+    }
+    else if (cmd == "RIGHT") {
+        move_npc_request(*ctx.targetNpc, RIGHT);
+        ctx.waitingForMove = true;
+    }
+    else if (cmd.find("BATTLE@") == 0) { //
+        int battle_id = std::stoi(cmd.substr(7));
+        // start battle with id
+    }
+    // continue
+    //
+    else if (cmd.find("MSG@") == 0) {
+        std::string msg = cmd.substr(4);
+        ui_show_message(msg);
+        ctx.waitingForInput = true;
+    }
+    else if (cmd.find("GIVE@") == 0) {
+        std::string msg = cmd.substr(5);
+        ui_show_item_get_message("item_name");
+        ctx.waitingForInput = true;
+        // add item to inventory
+    }
+    else if (cmd == "END") {
+        ctx.active = false;
+        can_move = true;
+    }
+    else {
+        ctx.currentLine++;
+    }
 }
 
 void script_next() {
     if (ctx.active && ctx.waitingForInput) {
         ctx.waitingForInput = false;
         ctx.currentLine++;
-        // ui_close_message();
+        ui_close_message();
     }
 }
 
@@ -105,4 +145,8 @@ void move_npc_request(Entity& npc, int dir) {
         npc.set_moving(true);
     }
 
+}
+
+bool script_is_active() {
+    return ctx.active;
 }

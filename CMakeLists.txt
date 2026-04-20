@@ -17,7 +17,9 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_CURRENT_SOURCE_DIR})
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_CURRENT_SOURCE_DIR})
 
 # 4. Definizione dell'eseguibile
-add_executable(DaringEngine main.cpp src/scripts/classes/entity.cpp src/scripts/engine/language.cpp)
+add_executable(DaringEngine main.cpp src/scripts/engine/language.cpp src/scripts/engine/ui.cpp src/scripts/engine/Battle.cpp src/scripts/classes/entity.cpp src/scripts/classes/Attack.cpp
+                src/scripts/classes/Character.cpp src/scripts/classes/Enemy.cpp src/scripts/classes/Equip.cpp src/scripts/classes/Item.cpp src/scripts/classes/Magic.cpp
+                src/scripts/classes/PlayerVars.cpp)
 
 # 5. ATTIVAZIONE INCLUDE (Fondamentale per risolvere l'errore C1083)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)

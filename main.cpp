@@ -7,6 +7,10 @@
 #include "SDL3/SDL_rect.h"
 #include "SDL3/SDL_render.h"
 #include "scripts/engine/language.h"
+#include "scripts/engine/ui.h"
+#include "scripts/classes/Character.h"
+#include "scripts/classes/Attack.h"
+
 #define NPC_OFFSET 216
 #define RIGHT 1
 #define LEFT 2
@@ -18,8 +22,10 @@ uint8_t player_facing;
 Uint64 last_time = SDL_GetTicksNS();
 float delta_time = 0.0f;
 
-std::vector<Entity> npcs;
+bool can_move = true;
 
+std::vector<Entity> npcs;
+std::vector<Attack> atks;
 uint8_t map[15][15] = {
     {23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23},
     {23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23},
@@ -49,6 +55,9 @@ void draw_map(SDL_Renderer* renderer, SDL_Texture* tileset);
 void draw_tile(SDL_Renderer* renderer, SDL_Texture* tileset, int tile_id, float screen_x, float screen_y);
 bool check_collision(float x, float y, int dir);
 
+Character chara("Pasquel", "Knight", 5, 20, 7, 10, 7, 9, 5, 3, 2, atks);
+
+
 int main(int argc, char* argv[]) {
     if (!SDL_Init(SDL_INIT_VIDEO)) return -1;
 
@@ -57,6 +66,7 @@ int main(int argc, char* argv[]) {
     SDL_SetRenderVSync(renderer, 1);
 
     Entity entity(0, 128, 128, 32, 32, "img/sprites/prova/prova.bmp", renderer);
+
     Entity npc = Entity(1, 160, 160, 32, 32, "img/sprites/prova/pg2.bmp", renderer);
     SDL_FRect barraUI = { 0.0f, 400.0f, 800.0f, 200.0f };
 
@@ -84,7 +94,12 @@ int main(int argc, char* argv[]) {
             if (event.type == SDL_EVENT_QUIT) running = false;
             if (event.type == SDL_EVENT_KEY_DOWN) {
                     if (event.key.scancode == SDL_SCANCODE_E && event.key.repeat == 0) {
-                        check_npc(entity);
+                        if (script_is_active()) {
+                            script_next();
+                        }
+                        else {
+                            check_npc(entity);
+                        }
                     }
             }
         }
@@ -92,8 +107,10 @@ int main(int argc, char* argv[]) {
 
 
         // movement
-        movement(entity);
+        if (can_move) movement(entity);
+
         npc_movement();
+        script_update();
 
         // DISEGNO
         SDL_SetRenderDrawColor(renderer, 50, 50, 50, 255);
@@ -230,8 +247,17 @@ void movement(Entity &entity) {
 }
 
 void draw_ui(SDL_Renderer* renderer, SDL_FRect barraUI) {
+    if (!is_ui_visible) return;
     SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
     SDL_RenderFillRect(renderer, &barraUI);
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+    SDL_SetRenderScale(renderer, 2.0f, 2.0f);
+
+    float text_x = (barraUI.x + 20.0f) / 2.0f;
+    float text_y = (barraUI.y + 20.0f) / 2.0f;
+
+    SDL_RenderDebugText(renderer, text_x, text_y, current_ui_text.c_str());
+    SDL_SetRenderScale(renderer, 1.0f, 1.0f);
 }
 
 void set_npc_in_map(Entity& npc) {
@@ -266,7 +292,7 @@ void check_npc(Entity& entity) {
         int target_id = map[target_y_pos][target_x_pos] - NPC_OFFSET;
         for (Entity& n : npcs) {
             if (n.get_id() == target_id) {
-                move_npc_request(n, UP);
+                script_load("game_scripts/script.txt", &n);
                 break;
             }
         }

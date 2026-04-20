@@ -4,10 +4,37 @@
     <ClCompile Include="D:\Progettini\DaringEngine\main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="D:\Progettini\DaringEngine\src\scripts\engine\language.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\Progettini\DaringEngine\src\scripts\engine\ui.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\Progettini\DaringEngine\src\scripts\engine\Battle.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="D:\Progettini\DaringEngine\src\scripts\classes\entity.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="D:\Progettini\DaringEngine\src\scripts\engine\language.cpp">
+    <ClCompile Include="D:\Progettini\DaringEngine\src\scripts\classes\Attack.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\Progettini\DaringEngine\src\scripts\classes\Character.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\Progettini\DaringEngine\src\scripts\classes\Enemy.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\Progettini\DaringEngine\src\scripts\classes\Equip.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\Progettini\DaringEngine\src\scripts\classes\Item.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\Progettini\DaringEngine\src\scripts\classes\Magic.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="D:\Progettini\DaringEngine\src\scripts\classes\PlayerVars.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

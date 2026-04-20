@@ -1,0 +1,8 @@
+UP
+LEFT
+LEFT
+LEFT
+DOWN
+MSG@Pari il cazzo fra
+GIVE@001@3
+END
