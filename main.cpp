@@ -6,6 +6,7 @@
 #include "SDL3/SDL_log.h"
 #include "SDL3/SDL_rect.h"
 #include "SDL3/SDL_render.h"
+#include "SDL3/SDL_scancode.h"
 #include "scripts/engine/language.h"
 #include "scripts/engine/ui.h"
 #include "scripts/classes/Character.h"
@@ -20,8 +21,10 @@ uint8_t player_facing;
 
 
 Uint64 last_time = SDL_GetTicksNS();
-float delta_time = 0.0f;
 
+float delta_time = 0.0f;
+uint8_t game_state = 0; // 0: none, 1: battle, >2: menus
+uint8_t menu_option = 0;
 bool can_move = true;
 
 std::vector<Entity> npcs;
@@ -45,10 +48,12 @@ uint8_t map[15][15] = {
 };
 
 uint8_t tile_walkable_tresh = 5;
+void menu_choices(SDL_Event event);
 void npc_movement();
 void check_npc(Entity& entity);
 void set_npc_in_map(Entity& npc);
 void draw_ui(SDL_Renderer* renderer, SDL_FRect barraUI);
+void draw_menu(SDL_Renderer* renderer);
 void movement(Entity& entity);
 void smooth_movement(int dir, float& x, float& y, float target_x, float target_y, float dt);
 void draw_map(SDL_Renderer* renderer, SDL_Texture* tileset);
@@ -93,21 +98,33 @@ int main(int argc, char* argv[]) {
         while (SDL_PollEvent(&event)) {
             if (event.type == SDL_EVENT_QUIT) running = false;
             if (event.type == SDL_EVENT_KEY_DOWN) {
-                    if (event.key.scancode == SDL_SCANCODE_E && event.key.repeat == 0) {
-                        if (script_is_active()) {
-                            script_next();
-                        }
-                        else {
-                            check_npc(entity);
-                        }
+                if (event.key.scancode == SDL_SCANCODE_ESCAPE && event.key.repeat == 0) {
+                    if (game_state == 0) {
+                        menu_option = 0;
+                        game_state = 2;
                     }
+                    else if (game_state == 2) {
+                        game_state = 0;
+                    }
+                }
+                if (game_state == 2) {
+                    menu_choices(event);
+                }
+                if (event.key.scancode == SDL_SCANCODE_E && event.key.repeat == 0) {
+                    if (script_is_active()) {
+                        script_next();
+                    }
+                    else if (game_state == 0) {
+                        check_npc(entity);
+                    }
+                }
             }
         }
 
 
 
         // movement
-        if (can_move) movement(entity);
+        if (can_move && game_state == 0) movement(entity);
 
         npc_movement();
         script_update();
@@ -125,6 +142,7 @@ int main(int argc, char* argv[]) {
         }
 
         draw_ui(renderer, barraUI);
+        draw_menu(renderer);
 
         SDL_RenderPresent(renderer);
     }
@@ -317,6 +335,51 @@ void npc_movement() {
                 n.set_pos_y(n.get_target_y());
                 n.set_moving(false);
             }
+        }
+    }
+}
+
+void draw_menu(SDL_Renderer* renderer) {
+    if (game_state == 2) {
+
+        SDL_FRect lateral = { 32.0f, 64.0f, 160.0f, 240.0f };
+        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+        SDL_RenderFillRect(renderer, &lateral);
+        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+        SDL_SetRenderScale(renderer, 2.0f, 2.0f);
+        SDL_RenderDebugText(renderer, 28.0f, 40.0f, "STATUS");
+        SDL_RenderDebugText(renderer, 28.0f, 56.0f, "ITEMS");
+        SDL_RenderDebugText(renderer, 28.0f, 72.0f, "MAGIC");
+        SDL_RenderDebugText(renderer, 28.0f, 88.0f, "QUESTS");
+        SDL_RenderDebugText(renderer, 28.0f, 104.0f, "SAVE");
+        SDL_RenderDebugText(renderer, 28.0f, 120.0f, "SETTINGS");
+        SDL_RenderDebugText(renderer, 28.0f, 136.0f, "EXIT");
+        SDL_SetRenderScale(renderer, 1.0f, 1.0f);
+
+        SDL_Surface* arrow = SDL_LoadBMP("img/sprites/prova/arrow.bmp");
+        SDL_Texture* arrow_text = SDL_CreateTextureFromSurface(renderer, arrow);
+        SDL_FRect arr_rect = { 36.0f, 78.0f + (menu_option * 32), 16.0f, 16.0f};
+        SDL_RenderTexture(renderer, arrow_text, NULL, &arr_rect);
+    }
+}
+
+void menu_choices(SDL_Event event) {
+    if (event.key.scancode == SDL_SCANCODE_UP && menu_option > 0) {
+        menu_option--;
+    }
+    else if (event.key.scancode == SDL_SCANCODE_DOWN && menu_option < 6) {
+        menu_option++;
+    }
+    else if (event.key.scancode == SDL_SCANCODE_E) {
+        switch (menu_option) {
+            case 6:
+                menu_option = 0;
+                game_state = 0;
+                break;
+            default:
+                menu_option = 0;
+                game_state = 0;
+                break;
         }
     }
 }
