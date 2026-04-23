@@ -1,4 +1,5 @@
 #include "../classes/entity.h"
+#include "scripts/classes/PlayerVars.h"
 #include <vector>
 
 struct Script{
@@ -27,3 +28,5 @@ bool script_is_active();
 extern uint8_t map[15][15];
 extern uint8_t tile_walkable_tresh;
 extern bool can_move;
+extern PlayerVars player;
+extern std::vector<Item> items;

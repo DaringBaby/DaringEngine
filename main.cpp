@@ -7,10 +7,12 @@
 #include "SDL3/SDL_rect.h"
 #include "SDL3/SDL_render.h"
 #include "SDL3/SDL_scancode.h"
+#include "scripts/classes/PlayerVars.h"
 #include "scripts/engine/language.h"
 #include "scripts/engine/ui.h"
 #include "scripts/classes/Character.h"
 #include "scripts/classes/Attack.h"
+#include "scripts/classes/Item.h"
 
 #define NPC_OFFSET 216
 #define RIGHT 1
@@ -25,10 +27,16 @@ Uint64 last_time = SDL_GetTicksNS();
 float delta_time = 0.0f;
 uint8_t game_state = 0; // 0: none, 1: battle, >2: menus
 uint8_t menu_option = 0;
+uint8_t status_option = 0;
 bool can_move = true;
 
 std::vector<Entity> npcs;
+std::vector<Character> party;
 std::vector<Attack> atks;
+std::vector<Item> items;
+
+PlayerVars player;
+
 uint8_t map[15][15] = {
     {23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23},
     {23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23},
@@ -49,6 +57,7 @@ uint8_t map[15][15] = {
 
 uint8_t tile_walkable_tresh = 5;
 void menu_choices(SDL_Event event);
+void status_choices(SDL_Event event);
 void npc_movement();
 void check_npc(Entity& entity);
 void set_npc_in_map(Entity& npc);
@@ -59,8 +68,14 @@ void smooth_movement(int dir, float& x, float& y, float target_x, float target_y
 void draw_map(SDL_Renderer* renderer, SDL_Texture* tileset);
 void draw_tile(SDL_Renderer* renderer, SDL_Texture* tileset, int tile_id, float screen_x, float screen_y);
 bool check_collision(float x, float y, int dir);
+void draw_status(SDL_Renderer* renderer);
+void draw_item_menu(SDL_Renderer* renderer);
 
 Character chara("Pasquel", "Knight", 5, 20, 7, 10, 7, 9, 5, 3, 2, atks);
+Character chara2("Babbo", "Hero", 5, 20, 7, 10, 7, 9, 5, 3, 2, atks);
+Character chara3("Pisnul", "Pippone", 5, 20, 7, 10, 7, 9, 5, 3, 2, atks);
+Character chara4("Sussy", "Baka", 5, 20, 7, 10, 7, 9, 5, 3, 2, atks);
+
 
 
 int main(int argc, char* argv[]) {
@@ -85,7 +100,15 @@ int main(int argc, char* argv[]) {
     SDL_Event event;
 
     set_npc_in_map(npcs[0]);
-
+    //
+    party.push_back(chara);
+    party.push_back(chara2);
+    party.push_back(chara3);
+    party.push_back(chara4);
+    Item item("Oggect", "This item sucks", 200, "DAMAGE", 3, "ALL");
+    items.push_back(item);
+    player.add_item(item, 3);
+    //
     player_facing = DOWN;
 
     while (running) {
@@ -94,6 +117,7 @@ int main(int argc, char* argv[]) {
         delta_time = (now - last_time) / 1000000000.0f;
         last_time = now;
         //
+
 
         while (SDL_PollEvent(&event)) {
             if (event.type == SDL_EVENT_QUIT) running = false;
@@ -109,6 +133,9 @@ int main(int argc, char* argv[]) {
                 }
                 if (game_state == 2) {
                     menu_choices(event);
+                }
+                if (game_state == 3) {
+                    status_choices(event);
                 }
                 if (event.key.scancode == SDL_SCANCODE_E && event.key.repeat == 0) {
                     if (script_is_active()) {
@@ -144,7 +171,11 @@ int main(int argc, char* argv[]) {
         draw_ui(renderer, barraUI);
         draw_menu(renderer);
 
+        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+        SDL_RenderDebugText(renderer, 16.0f, 16.0f, (std::to_string(1.0f/delta_time)).c_str());
+
         SDL_RenderPresent(renderer);
+
     }
 
     SDL_Quit();
@@ -340,20 +371,20 @@ void npc_movement() {
 }
 
 void draw_menu(SDL_Renderer* renderer) {
-    if (game_state == 2) {
-
-        SDL_FRect lateral = { 32.0f, 64.0f, 160.0f, 240.0f };
+    if (game_state >= 2) {
+        SDL_FRect lateral = { 32.0f, 64.0f, 160.0f, 272.0f };
         SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
         SDL_RenderFillRect(renderer, &lateral);
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
         SDL_SetRenderScale(renderer, 2.0f, 2.0f);
         SDL_RenderDebugText(renderer, 28.0f, 40.0f, "STATUS");
         SDL_RenderDebugText(renderer, 28.0f, 56.0f, "ITEMS");
-        SDL_RenderDebugText(renderer, 28.0f, 72.0f, "MAGIC");
-        SDL_RenderDebugText(renderer, 28.0f, 88.0f, "QUESTS");
-        SDL_RenderDebugText(renderer, 28.0f, 104.0f, "SAVE");
-        SDL_RenderDebugText(renderer, 28.0f, 120.0f, "SETTINGS");
-        SDL_RenderDebugText(renderer, 28.0f, 136.0f, "EXIT");
+        SDL_RenderDebugText(renderer, 28.0f, 72.0f, "EQUIP");
+        SDL_RenderDebugText(renderer, 28.0f, 88.0f, "MAGIC");
+        SDL_RenderDebugText(renderer, 28.0f, 104.0f, "QUESTS");
+        SDL_RenderDebugText(renderer, 28.0f, 120.0f, "SAVE");
+        SDL_RenderDebugText(renderer, 28.0f, 136.0f, "SETTINGS");
+        SDL_RenderDebugText(renderer, 28.0f, 152.0f, "EXIT");
         SDL_SetRenderScale(renderer, 1.0f, 1.0f);
 
         SDL_Surface* arrow = SDL_LoadBMP("img/sprites/prova/arrow.bmp");
@@ -361,17 +392,30 @@ void draw_menu(SDL_Renderer* renderer) {
         SDL_FRect arr_rect = { 36.0f, 78.0f + (menu_option * 32), 16.0f, 16.0f};
         SDL_RenderTexture(renderer, arrow_text, NULL, &arr_rect);
     }
+    if (game_state == 3) {
+        draw_status(renderer);
+    }
+    if (game_state == 4) {
+        draw_item_menu(renderer);
+    }
 }
 
 void menu_choices(SDL_Event event) {
     if (event.key.scancode == SDL_SCANCODE_UP && menu_option > 0) {
         menu_option--;
     }
-    else if (event.key.scancode == SDL_SCANCODE_DOWN && menu_option < 6) {
+    else if (event.key.scancode == SDL_SCANCODE_DOWN && menu_option < 7) {
         menu_option++;
     }
     else if (event.key.scancode == SDL_SCANCODE_E) {
         switch (menu_option) {
+            case 0:
+                status_option = 0;
+                game_state = 3;
+                break;
+            case 1:
+                game_state = 4;
+                break;
             case 6:
                 menu_option = 0;
                 game_state = 0;
@@ -382,4 +426,64 @@ void menu_choices(SDL_Event event) {
                 break;
         }
     }
+}
+
+void status_choices (SDL_Event event) {
+    if (event.key.scancode == SDL_SCANCODE_A && status_option > 0) {
+        status_option--;
+    }
+    else if (event.key.scancode == SDL_SCANCODE_S && status_option < std::size(party)-1) {
+        status_option++;
+    }
+    if (event.key.scancode == SDL_SCANCODE_ESCAPE) {
+        status_option = 0;
+        game_state = 2;
+    }
+}
+
+void draw_status(SDL_Renderer* renderer) {
+    SDL_FRect status = { 224.0f, 64.0f, 160.0f, 368.0f };
+    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+    SDL_RenderFillRect(renderer, &status);
+    SDL_SetRenderScale(renderer, 2.0f, 2.0f);
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+    SDL_RenderDebugText(renderer, 136.0f, 40.0f, "Name ");
+    SDL_RenderDebugText(renderer, 120.0f, 48.0f, party[status_option].get_name().c_str());
+    SDL_RenderDebugText(renderer, 136.0f, 64.0f, "Class ");
+    SDL_RenderDebugText(renderer, 120.0f, 72.0f, party[status_option].get_classe().c_str());
+    //
+    //
+    SDL_RenderDebugText(renderer, 120.0f, 88.0f, ("Level " + std::to_string(party[status_option].get_level())).c_str());
+    SDL_RenderDebugText(renderer, 120.0f, 96.0f, ("Nxt " + std::to_string(party[status_option].get_next_level_exp())).c_str());
+
+    SDL_RenderDebugText(renderer, 120.0f, 112.0f, "HP: ");
+    SDL_RenderDebugText(renderer, 136.0f, 120.0f, (std::to_string(party[status_option].get_current_hp()) + "/" + std::to_string(party[status_option].get_max_hp())).c_str());
+
+    SDL_RenderDebugText(renderer, 120.0f, 136.0f, "MP: ");
+    SDL_RenderDebugText(renderer, 136.0f, 144.0f, (std::to_string(party[status_option].get_current_mp()) + "/" + std::to_string(party[status_option].get_max_mp())).c_str());
+
+    SDL_RenderDebugText(renderer, 120.0f, 160.0f, ("STR: " + std::to_string(party[status_option].get_current_strength())).c_str());
+    SDL_RenderDebugText(renderer, 120.0f, 168.0f, ("DEF: " + std::to_string(party[status_option].get_current_defense())).c_str());
+    SDL_RenderDebugText(renderer, 120.0f, 176.0f, ("INT: " + std::to_string(party[status_option].get_current_intelligence())).c_str());
+    SDL_RenderDebugText(renderer, 120.0f, 184.0f, ("MDF: " + std::to_string(party[status_option].get_current_magic_defense())).c_str());
+    SDL_RenderDebugText(renderer, 120.0f, 192.0f, ("SPD: " + std::to_string(party[status_option].get_current_speed())).c_str());
+    SDL_RenderDebugText(renderer, 120.0f, 200.0f, ("LCK: " + std::to_string(party[status_option].get_current_luck())).c_str());
+
+    SDL_SetRenderScale(renderer, 1.0f, 1.0f);
+}
+
+void draw_item_menu(SDL_Renderer* renderer) {
+    SDL_FRect item_menu = { 224.0f, 64.0f, 224.0f, 272.0f };
+    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+    SDL_RenderFillRect(renderer, &item_menu);
+
+    SDL_SetRenderScale(renderer, 2.0f, 2.0f);
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+    for (int i = 0; i < std::size(player.get_inventory()); i++) {
+        SDL_RenderDebugText(renderer, 120.0f, 40.0f + 32.0f * i, (player.get_inventory()[i].get_name()).c_str());
+        SDL_RenderDebugText(renderer, 192.0f, 40.0f + 32.0f * i, ("x"+std::to_string(player.get_items_quantity()[i])).c_str());
+    }
+
+    SDL_SetRenderScale(renderer, 1.0f, 1.0f);
+
 }

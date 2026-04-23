@@ -10,7 +10,7 @@
 // RIGHT: go right
 // BATTLE@BATTLE_ID: start a battle (boss?)
 // BUFFSTAT@STAT_ID@amount: buff a stat
-// GIVE@ITEM_ID@quantity: give item to player
+// GIVE@ITEM_ID@quantity: give item to player // GIVE@000@quantity
 // REMOVE@ITEM_ID@quantity: remove item from player
 // ADDPARTY@ID: add to party
 // SETON@FLAG_ID: set a flag on
@@ -91,7 +91,12 @@ void script_update() {
     }
     else if (cmd.find("GIVE@") == 0) {
         std::string msg = cmd.substr(5);
-        ui_show_item_get_message("item_name");
+        size_t pos = msg.find('@');
+        int item_idx = std::stoi(msg.substr(0, pos));
+        int qnt = std::stoi(msg.substr(pos+1));
+        Item item = items[item_idx];
+        player.add_item(item, qnt);
+        ui_show_item_get_message(item.get_name());
         ctx.waitingForInput = true;
         // add item to inventory
     }

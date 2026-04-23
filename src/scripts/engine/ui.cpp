@@ -15,6 +15,6 @@ void ui_close_message() {
 
 void ui_show_item_get_message(std::string item_name) {
     // def name for now
-    current_ui_text = chara.get_name() + " obtained: item name.";
+    current_ui_text = chara.get_name() + " obtained: " + item_name;
     is_ui_visible = true;
 }
