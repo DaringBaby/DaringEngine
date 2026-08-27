@@ -13,6 +13,8 @@
 #include "scripts/classes/Character.h"
 #include "scripts/classes/Attack.h"
 #include "scripts/classes/Item.h"
+#include <iostream>
+
 
 #define NPC_OFFSET 216
 #define RIGHT 1
@@ -28,12 +30,17 @@ float delta_time = 0.0f;
 uint8_t game_state = 0; // 0: none, 1: battle, >2: menus
 uint8_t menu_option = 0;
 uint8_t status_option = 0;
+uint8_t item_option = 0;
 bool can_move = true;
+
+int first_item = 0;
+
 
 std::vector<Entity> npcs;
 std::vector<Character> party;
 std::vector<Attack> atks;
 std::vector<Item> items;
+
 
 PlayerVars player;
 
@@ -58,6 +65,7 @@ uint8_t map[15][15] = {
 uint8_t tile_walkable_tresh = 5;
 void menu_choices(SDL_Event event);
 void status_choices(SDL_Event event);
+void item_choices(SDL_Event event);
 void npc_movement();
 void check_npc(Entity& entity);
 void set_npc_in_map(Entity& npc);
@@ -105,9 +113,11 @@ int main(int argc, char* argv[]) {
     party.push_back(chara2);
     party.push_back(chara3);
     party.push_back(chara4);
-    Item item("Oggect", "This item sucks", 200, "DAMAGE", 3, "ALL");
-    items.push_back(item);
-    player.add_item(item, 3);
+    for (int i = 0; i<10; i++) {
+        Item item("Oggect"+std::to_string(i), "This item sucks", 200, "DAMAGE", 3, "ALL");
+        items.push_back(item);
+        player.add_item(item, 3);
+    }
     //
     player_facing = DOWN;
 
@@ -136,6 +146,9 @@ int main(int argc, char* argv[]) {
                 }
                 if (game_state == 3) {
                     status_choices(event);
+                }
+                if (game_state == 4) {
+                    item_choices(event);
                 }
                 if (event.key.scancode == SDL_SCANCODE_E && event.key.repeat == 0) {
                     if (script_is_active()) {
@@ -414,6 +427,7 @@ void menu_choices(SDL_Event event) {
                 game_state = 3;
                 break;
             case 1:
+                first_item = 0;
                 game_state = 4;
                 break;
             case 6:
@@ -437,6 +451,27 @@ void status_choices (SDL_Event event) {
     }
     if (event.key.scancode == SDL_SCANCODE_ESCAPE) {
         status_option = 0;
+        game_state = 2;
+    }
+}
+
+void item_choices(SDL_Event event) {
+    if (event.key.scancode == SDL_SCANCODE_UP && item_option > first_item) {
+        item_option--;
+    }
+    else if (event.key.scancode == SDL_SCANCODE_DOWN && item_option < first_item + 7 && item_option < items.size()-1) {
+        item_option++;
+    }
+    if (event.key.scancode == SDL_SCANCODE_S && std::size(items) >= first_item + 7) {
+        first_item += 8;
+        item_option = first_item;
+    }
+    else if (event.key.scancode == SDL_SCANCODE_A && first_item != 0) {
+        first_item -= 8;
+        item_option = first_item;
+    }
+    if (event.key.scancode == SDL_SCANCODE_ESCAPE) {
+        first_item = 0;
         game_state = 2;
     }
 }
@@ -479,11 +514,16 @@ void draw_item_menu(SDL_Renderer* renderer) {
 
     SDL_SetRenderScale(renderer, 2.0f, 2.0f);
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-    for (int i = 0; i < std::size(player.get_inventory()); i++) {
-        SDL_RenderDebugText(renderer, 120.0f, 40.0f + 32.0f * i, (player.get_inventory()[i].get_name()).c_str());
-        SDL_RenderDebugText(renderer, 192.0f, 40.0f + 32.0f * i, ("x"+std::to_string(player.get_items_quantity()[i])).c_str());
+
+    for (int i = 0; i+first_item < std::size(player.get_inventory()) && i < 8; i++) {
+        SDL_RenderDebugText(renderer, 128.0f, 40.0f + 16.0f * i, (player.get_inventory()[first_item + i].get_name()).c_str());
+        SDL_RenderDebugText(renderer, 200.0f, 40.0f + 16.0f * i, ("x"+std::to_string(player.get_items_quantity()[first_item + i])).c_str());
     }
 
     SDL_SetRenderScale(renderer, 1.0f, 1.0f);
 
+    SDL_Surface* arrow = SDL_LoadBMP("img/sprites/prova/arrow.bmp");
+    SDL_Texture* arrow_item = SDL_CreateTextureFromSurface(renderer, arrow);
+    SDL_FRect arr_rect = { 230.0f, 78.0f + ((item_option - first_item) * 32.0f), 16.0f, 16.0f };
+    SDL_RenderTexture(renderer, arrow_item, NULL, &arr_rect);
 }

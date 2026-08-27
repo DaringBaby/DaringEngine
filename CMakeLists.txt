@@ -6,7 +6,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # 1. Configurazione percorsi SDL3
 # Assicurati che questo percorso contenga effettivamente SDL3Config.cmake
-set(SDL3_DIR "D:/Progettini/DaringEngine/SDL3-3.4.4/cmake")
+set(SDL3_DIR "D:/Progettini/DaringEngine/SDL3-3.4.4/x86_64-w64-mingw32/lib/cmake/SDL3")
 
 # 2. Ricerca del pacchetto SDL3
 find_package(SDL3 REQUIRED)
