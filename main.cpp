@@ -3,6 +3,7 @@
 #include <SDL3/SDL_test_font.h>
 #include <string>
 #include <vector>
+#include "SDL3/SDL_events.h"
 #include "SDL3/SDL_log.h"
 #include "SDL3/SDL_rect.h"
 #include "SDL3/SDL_render.h"
@@ -27,10 +28,12 @@ uint8_t player_facing;
 Uint64 last_time = SDL_GetTicksNS();
 
 float delta_time = 0.0f;
-uint8_t game_state = 0; // 0: none, 1: battle, >2: menus
+uint8_t game_state = 0; // 0: none, 1: battle, 2: menu, 3: status, 4: item menu, 5: use item, 6: select party member to use item, 7: drop item
 uint8_t menu_option = 0;
 uint8_t status_option = 0;
 uint8_t item_option = 0;
+uint8_t use_option = 0;
+
 bool can_move = true;
 
 int first_item = 0;
@@ -78,6 +81,10 @@ void draw_tile(SDL_Renderer* renderer, SDL_Texture* tileset, int tile_id, float 
 bool check_collision(float x, float y, int dir);
 void draw_status(SDL_Renderer* renderer);
 void draw_item_menu(SDL_Renderer* renderer);
+void draw_use_item_menu(SDL_Renderer* renderer);
+bool can_use_item(std::string type);
+void use_item_choices(SDL_Event event);
+void draw_line(SDL_Renderer* renderer, float pos_x, float pos_y, std::string text);
 
 Character chara("Pasquel", "Knight", 5, 20, 7, 10, 7, 9, 5, 3, 2, atks);
 Character chara2("Babbo", "Hero", 5, 20, 7, 10, 7, 9, 5, 3, 2, atks);
@@ -115,8 +122,11 @@ int main(int argc, char* argv[]) {
     party.push_back(chara4);
     for (int i = 0; i<10; i++) {
         Item item("Oggect"+std::to_string(i), "This item sucks", 200, "DAMAGE", 3, "ALL");
+        Item item2("OBgect"+std::to_string(i), "Cura", 20, "HEALING", 3, "ALL");
         items.push_back(item);
+        items.push_back(item2);
         player.add_item(item, 3);
+        player.add_item(item2, 3);
     }
     //
     player_facing = DOWN;
@@ -149,6 +159,9 @@ int main(int argc, char* argv[]) {
                 }
                 if (game_state == 4) {
                     item_choices(event);
+                }
+                if (game_state == 5) {
+                    use_item_choices(event);
                 }
                 if (event.key.scancode == SDL_SCANCODE_E && event.key.repeat == 0) {
                     if (script_is_active()) {
@@ -408,8 +421,11 @@ void draw_menu(SDL_Renderer* renderer) {
     if (game_state == 3) {
         draw_status(renderer);
     }
-    if (game_state == 4) {
+    if (game_state == 4 ||game_state == 5 || game_state == 6) {
         draw_item_menu(renderer);
+    }
+    if (game_state == 5) {
+        draw_use_item_menu(renderer);
     }
 }
 
@@ -471,8 +487,14 @@ void item_choices(SDL_Event event) {
         item_option = first_item;
     }
     if (event.key.scancode == SDL_SCANCODE_ESCAPE) {
+        item_option = 0;
         first_item = 0;
         game_state = 2;
+    }
+    if (event.key.scancode == SDL_SCANCODE_E) {
+        if (can_use_item(player.get_inventory()[item_option].get_type())) {
+            game_state = 5;
+        }
     }
 }
 
@@ -526,4 +548,77 @@ void draw_item_menu(SDL_Renderer* renderer) {
     SDL_Texture* arrow_item = SDL_CreateTextureFromSurface(renderer, arrow);
     SDL_FRect arr_rect = { 230.0f, 78.0f + ((item_option - first_item) * 32.0f), 16.0f, 16.0f };
     SDL_RenderTexture(renderer, arrow_item, NULL, &arr_rect);
+
+    SDL_FRect item_desc = { 32.0f, 368.0f, 416.0f, 80.0f };
+    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+    SDL_RenderFillRect(renderer, &item_desc);
+
+
+    SDL_SetRenderScale(renderer, 2.0f, 2.0f);
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+
+    SDL_RenderDebugText(renderer, 24.0f, 192.0f, (player.get_inventory()[item_option].get_description().c_str()));
+
+    SDL_SetRenderScale(renderer, 1.0f, 1.0f);
+}
+
+void draw_use_item_menu(SDL_Renderer * renderer) {
+    // riquadro
+    SDL_FRect use_menu = { 332.0f, 368.0f, 116.0f, 80.0f };
+    SDL_SetRenderDrawColor(renderer, 0, 255, 255, 255);
+    SDL_RenderFillRect(renderer, &use_menu);
+    // scritta
+    draw_line(renderer, 332+32.0f, 384, "Use");
+    draw_line(renderer, 332+32.0f, 416.0f, "Drop");
+
+    // arrow
+    SDL_Surface* arrow = SDL_LoadBMP("img/sprites/prova/arrow.bmp");
+    SDL_Texture* arrow_item = SDL_CreateTextureFromSurface(renderer, arrow);
+    SDL_FRect arr_rect;
+    if (use_option == 0) {
+        arr_rect = { 340.0f, 384.0f, 16.0f, 16.0f};
+    }
+    else {
+        arr_rect = { 340.0f, 416.0f, 16.0f, 16.0f};
+    }
+
+    SDL_RenderTexture(renderer, arrow_item, NULL, &arr_rect);
+
+}
+
+bool can_use_item(std::string type) {
+    return (type == "HEALING" || type == "MANA" || type == "REVIVE");
+}
+
+void draw_line(SDL_Renderer* renderer, float pos_x, float pos_y, std::string text) {
+    SDL_SetRenderScale(renderer, 2.0f, 2.0f);
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+
+    SDL_RenderDebugText(renderer, pos_x/2, pos_y/2, text.c_str());
+
+    SDL_SetRenderScale(renderer, 1.0f, 1.0f);
+
+
+}
+
+void use_item_choices(SDL_Event event) {
+    if (event.key.scancode == SDL_SCANCODE_UP && use_option == 1) {
+        use_option = 0;
+    }
+    else if (event.key.scancode == SDL_SCANCODE_DOWN && use_option == 0) {
+        use_option = 1;
+    }
+    else if (event.key.scancode == SDL_SCANCODE_E) {
+        if (use_option == 1) {
+            player.remove_item(player.get_inventory()[item_option], 1);
+            item_option = 0;
+            first_item = 0;
+            use_option = 0;
+            game_state = 4;
+        }
+    }
+    else if (event.key.scancode == SDL_SCANCODE_ESCAPE) {
+        use_option = 0;
+        game_state = 4;
+    }
 }
