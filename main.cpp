@@ -33,6 +33,7 @@ uint8_t menu_option = 0;
 uint8_t status_option = 0;
 uint8_t item_option = 0;
 uint8_t use_option = 0;
+uint8_t party_option = 0;
 
 bool can_move = true;
 
@@ -85,12 +86,16 @@ void draw_use_item_menu(SDL_Renderer* renderer);
 bool can_use_item(std::string type);
 void use_item_choices(SDL_Event event);
 void draw_line(SDL_Renderer* renderer, float pos_x, float pos_y, std::string text);
+void draw_use_item_to_party(SDL_Renderer* renderer);
+void party_menu_choices(SDL_Event event);
+void use_item();
 
 Character chara("Pasquel", "Knight", 5, 20, 7, 10, 7, 9, 5, 3, 2, atks);
 Character chara2("Babbo", "Hero", 5, 20, 7, 10, 7, 9, 5, 3, 2, atks);
 Character chara3("Pisnul", "Pippone", 5, 20, 7, 10, 7, 9, 5, 3, 2, atks);
 Character chara4("Sussy", "Baka", 5, 20, 7, 10, 7, 9, 5, 3, 2, atks);
 
+uint8_t party_size = 4;
 
 
 int main(int argc, char* argv[]) {
@@ -151,18 +156,23 @@ int main(int argc, char* argv[]) {
                         game_state = 0;
                     }
                 }
-                if (game_state == 2) {
-                    menu_choices(event);
+                switch (game_state) {
+                    case 2:
+                        menu_choices(event);
+                        break;
+                    case 3:
+                        status_choices(event);
+                        break;
+                    case 4:
+                        item_choices(event);
+                        break;
+                    case 5:
+                        use_item_choices(event);
+                        break;
+                    case 6:
+                        party_menu_choices(event);
                 }
-                if (game_state == 3) {
-                    status_choices(event);
-                }
-                if (game_state == 4) {
-                    item_choices(event);
-                }
-                if (game_state == 5) {
-                    use_item_choices(event);
-                }
+
                 if (event.key.scancode == SDL_SCANCODE_E && event.key.repeat == 0) {
                     if (script_is_active()) {
                         script_next();
@@ -427,6 +437,10 @@ void draw_menu(SDL_Renderer* renderer) {
     if (game_state == 5) {
         draw_use_item_menu(renderer);
     }
+    if (game_state == 6) {
+        SDL_Log(player.get_name().c_str());
+        draw_use_item_to_party(renderer);
+    }
 }
 
 void menu_choices(SDL_Event event) {
@@ -616,9 +630,90 @@ void use_item_choices(SDL_Event event) {
             use_option = 0;
             game_state = 4;
         }
+        else {
+            game_state = 6;
+        }
     }
     else if (event.key.scancode == SDL_SCANCODE_ESCAPE) {
         use_option = 0;
         game_state = 4;
     }
+}
+
+void draw_use_item_to_party(SDL_Renderer* renderer) {
+    SDL_FRect party_members = { 32.0f, 368.0f, 416.0f, 80.0f };
+    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+    SDL_RenderFillRect(renderer, &party_members);
+
+
+    SDL_SetRenderScale(renderer, 2.0f, 2.0f);
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+
+    draw_line(renderer, 56.0f, 376.0f, chara.get_name().c_str());
+    draw_line(renderer, 56.0f, 392.0f, chara2.get_name().c_str());
+    draw_line(renderer, 56.0f, 408.0f, chara3.get_name().c_str());
+    draw_line(renderer, 56.0f, 424.0f, chara4.get_name().c_str());
+
+    draw_line(renderer, 192.0f, 376.0f, "HP: ");
+    draw_line(renderer, 192.0f, 392.0f, "HP: ");
+    draw_line(renderer, 192.0f, 408.0f, "HP: ");
+    draw_line(renderer, 192.0f, 424.0f, "HP: ");
+
+    draw_line(renderer, 240.0f, 376.0f, std::to_string(chara.get_current_hp()).c_str());
+    draw_line(renderer, 240.0f, 392.0f, std::to_string(chara2.get_current_hp()).c_str());
+    draw_line(renderer, 240.0f, 408.0f, std::to_string(chara3.get_current_hp()).c_str());
+    draw_line(renderer, 240.0f, 424.0f, std::to_string(chara4.get_current_hp()).c_str());
+
+    draw_line(renderer, 288.0f, 376.0f, "/");
+    draw_line(renderer, 288.0f, 392.0f, "/");
+    draw_line(renderer, 288.0f, 408.0f, "/");
+    draw_line(renderer, 288.0f, 424.0f, "/");
+
+    draw_line(renderer, 304.0f, 376.0f, std::to_string(chara.get_max_hp()).c_str());
+    draw_line(renderer, 304.0f, 392.0f, std::to_string(chara2.get_max_hp()).c_str());
+    draw_line(renderer, 304.0f, 408.0f, std::to_string(chara3.get_max_hp()).c_str());
+    draw_line(renderer, 304.0f, 424.0f, std::to_string(chara4.get_max_hp()).c_str());
+
+    draw_line(renderer, 352.0f, 376.0f, "MP: ");
+    draw_line(renderer, 352.0f, 392.0f, "MP: ");
+    draw_line(renderer, 352.0f, 408.0f, "MP: ");
+    draw_line(renderer, 352.0f, 424.0f, "MP: ");
+
+    draw_line(renderer, 400.0f, 376.0f, std::to_string(chara.get_current_mp()));
+    draw_line(renderer, 400.0f, 392.0f, std::to_string(chara.get_current_mp()));
+    draw_line(renderer, 400.0f, 408.0f, std::to_string(chara.get_current_mp()));
+    draw_line(renderer, 400.0f, 424.0f, std::to_string(chara.get_current_mp()));
+
+
+    SDL_SetRenderScale(renderer, 1.0f, 1.0f);
+
+    SDL_Surface* arrow = SDL_LoadBMP("img/sprites/prova/arrow.bmp");
+    SDL_Texture* arrow_party = SDL_CreateTextureFromSurface(renderer, arrow);
+    SDL_FRect arr_rect = {40.0f, 376.0f + 16*(party_option), 16.0f, 16.0f };
+
+    SDL_RenderTexture(renderer, arrow_party, NULL, &arr_rect);
+}
+
+void party_menu_choices(SDL_Event event) {
+    if (event.key.scancode == SDL_SCANCODE_UP && party_option > 0) {
+        party_option--;
+    }
+    else if (event.key.scancode == SDL_SCANCODE_DOWN && party_option < party_size - 1) {
+        party_option++;
+    }
+    else if (event.key.scancode == SDL_SCANCODE_ESCAPE) {
+        party_option = 0;
+        item_option = 0;
+        first_item = 0;
+        use_option = 0;
+        game_state = 4;
+    }
+    else if (event.key.scancode == SDL_SCANCODE_E) {
+        use_item();
+    }
+}
+
+void use_item() {
+    // next time
+    return;
 }
