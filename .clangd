@@ -5,4 +5,7 @@ CompileFlags:
       "-ID:/Progettini/DaringEngine/include",
       "-std=c++17",
       "-Wall",
+      "--target=x86_64-w64-windows-gnu",
+      "-D__MSVCRT__"
     ]
+  Compiler: D:/devkitPro/msys2/usr/bin/c++.exe

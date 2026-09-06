@@ -88,7 +88,10 @@ void use_item_choices(SDL_Event event);
 void draw_line(SDL_Renderer* renderer, float pos_x, float pos_y, std::string text);
 void draw_use_item_to_party(SDL_Renderer* renderer);
 void party_menu_choices(SDL_Event event);
-void use_item();
+void use_item(const Item& item);
+void use_healing_item(const Item& item);
+void use_mana_item(const Item& item);
+void use_revive_item(const Item& item);
 
 Character chara("Pasquel", "Knight", 5, 20, 7, 10, 7, 9, 5, 3, 2, atks);
 Character chara2("Babbo", "Hero", 5, 20, 7, 10, 7, 9, 5, 3, 2, atks);
@@ -99,6 +102,7 @@ uint8_t party_size = 4;
 
 
 int main(int argc, char* argv[]) {
+
     if (!SDL_Init(SDL_INIT_VIDEO)) return -1;
 
     SDL_Window* window = SDL_CreateWindow("Daring Engine", 480, 480, 0);
@@ -125,6 +129,14 @@ int main(int argc, char* argv[]) {
     party.push_back(chara2);
     party.push_back(chara3);
     party.push_back(chara4);
+
+    // DEBUG
+    for (int i=0; i<std::size(party); i++) {
+        party[i].set_current_hp(party[i].get_max_hp()/2);
+        party[i].set_current_mp(party[i].get_max_mp()/2);
+    }
+    //
+
     for (int i = 0; i<10; i++) {
         Item item("Oggect"+std::to_string(i), "This item sucks", 200, "DAMAGE", 3, "ALL");
         Item item2("OBgect"+std::to_string(i), "Cura", 20, "HEALING", 3, "ALL");
@@ -489,10 +501,10 @@ void item_choices(SDL_Event event) {
     if (event.key.scancode == SDL_SCANCODE_UP && item_option > first_item) {
         item_option--;
     }
-    else if (event.key.scancode == SDL_SCANCODE_DOWN && item_option < first_item + 7 && item_option < items.size()-1) {
+    else if (event.key.scancode == SDL_SCANCODE_DOWN && item_option < first_item + 7 && item_option < player.get_inventory().size()-1) {
         item_option++;
     }
-    if (event.key.scancode == SDL_SCANCODE_S && std::size(items) >= first_item + 7) {
+    if (event.key.scancode == SDL_SCANCODE_S && std::size(player.get_inventory()) >= first_item + 7) {
         first_item += 8;
         item_option = first_item;
     }
@@ -649,40 +661,21 @@ void draw_use_item_to_party(SDL_Renderer* renderer) {
     SDL_SetRenderScale(renderer, 2.0f, 2.0f);
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
 
-    draw_line(renderer, 56.0f, 376.0f, chara.get_name().c_str());
-    draw_line(renderer, 56.0f, 392.0f, chara2.get_name().c_str());
-    draw_line(renderer, 56.0f, 408.0f, chara3.get_name().c_str());
-    draw_line(renderer, 56.0f, 424.0f, chara4.get_name().c_str());
+    for (int i = 0; i < party.size(); i++) {
+        float y = 376.0f + (i * 16.0f);
 
-    draw_line(renderer, 192.0f, 376.0f, "HP: ");
-    draw_line(renderer, 192.0f, 392.0f, "HP: ");
-    draw_line(renderer, 192.0f, 408.0f, "HP: ");
-    draw_line(renderer, 192.0f, 424.0f, "HP: ");
+        // Nome
+        draw_line(renderer, 56.0f, y, party[i].get_name().c_str());
 
-    draw_line(renderer, 240.0f, 376.0f, std::to_string(chara.get_current_hp()).c_str());
-    draw_line(renderer, 240.0f, 392.0f, std::to_string(chara2.get_current_hp()).c_str());
-    draw_line(renderer, 240.0f, 408.0f, std::to_string(chara3.get_current_hp()).c_str());
-    draw_line(renderer, 240.0f, 424.0f, std::to_string(chara4.get_current_hp()).c_str());
+        draw_line(renderer, 192.0f, y, "HP: ");
+        draw_line(renderer, 240.0f, y, std::to_string(party[i].get_current_hp()).c_str());
+        draw_line(renderer, 288.0f, y, "/");
+        draw_line(renderer, 304.0f, y, std::to_string(party[i].get_max_hp()).c_str());
 
-    draw_line(renderer, 288.0f, 376.0f, "/");
-    draw_line(renderer, 288.0f, 392.0f, "/");
-    draw_line(renderer, 288.0f, 408.0f, "/");
-    draw_line(renderer, 288.0f, 424.0f, "/");
+        draw_line(renderer, 352.0f, y, "MP: ");
+        draw_line(renderer, 400.0f, y, std::to_string(party[i].get_current_mp()).c_str());
+    }
 
-    draw_line(renderer, 304.0f, 376.0f, std::to_string(chara.get_max_hp()).c_str());
-    draw_line(renderer, 304.0f, 392.0f, std::to_string(chara2.get_max_hp()).c_str());
-    draw_line(renderer, 304.0f, 408.0f, std::to_string(chara3.get_max_hp()).c_str());
-    draw_line(renderer, 304.0f, 424.0f, std::to_string(chara4.get_max_hp()).c_str());
-
-    draw_line(renderer, 352.0f, 376.0f, "MP: ");
-    draw_line(renderer, 352.0f, 392.0f, "MP: ");
-    draw_line(renderer, 352.0f, 408.0f, "MP: ");
-    draw_line(renderer, 352.0f, 424.0f, "MP: ");
-
-    draw_line(renderer, 400.0f, 376.0f, std::to_string(chara.get_current_mp()));
-    draw_line(renderer, 400.0f, 392.0f, std::to_string(chara.get_current_mp()));
-    draw_line(renderer, 400.0f, 408.0f, std::to_string(chara.get_current_mp()));
-    draw_line(renderer, 400.0f, 424.0f, std::to_string(chara.get_current_mp()));
 
 
     SDL_SetRenderScale(renderer, 1.0f, 1.0f);
@@ -709,11 +702,105 @@ void party_menu_choices(SDL_Event event) {
         game_state = 4;
     }
     else if (event.key.scancode == SDL_SCANCODE_E) {
-        use_item();
+        use_item(player.get_inventory()[item_option]);
     }
 }
 
-void use_item() {
-    // next time
+void use_item(const Item& item) {
+    if (item.get_type() == "HEALING") {
+        use_healing_item(item);
+    }
+    else if (item.get_type() == "MANA") {
+        use_mana_item(item);
+    }
+    else if (item.get_type() == "REVIVE") {
+        use_revive_item(item);
+    }
     return;
+}
+
+void use_healing_item(const Item& item) {
+    if (item.get_target_type() == "Single") {
+        Character* chara = &party[party_option];
+        if (chara->get_current_hp() == 0) {
+            return;
+        }
+        if (chara->get_current_hp() < chara->get_max_hp()) {
+            chara->set_current_hp(chara->get_current_hp() + item.get_amount());
+            if (chara->get_current_hp() > chara->get_max_hp()) {
+                chara->set_current_hp(chara->get_max_hp());
+            }
+            player.remove_item(item, 1);
+        }
+    }
+    else {
+        bool used = false;
+        for (int i = 0; i < party_size; i++) {
+            Character* chara = &party[i];
+            if (chara->get_current_hp() < chara->get_max_hp() && chara->get_current_hp() != 0) {
+                chara->set_current_hp(chara->get_current_hp() + item.get_amount());
+                if (chara->get_current_hp() > chara->get_max_hp()) {
+                    chara->set_current_hp(chara->get_max_hp());
+                }
+                used = true;
+            }
+        }
+        if (used) {
+            player.remove_item(item, 1);
+        }
+    }
+    return;
+}
+
+void use_mana_item(const Item& item) {
+    if (item.get_target_type() == "Single") {
+        Character* chara = &party[party_option];
+        if (chara->get_current_mp() < chara->get_max_mp()) {
+            chara->set_current_mp(chara->get_current_mp() + item.get_amount());
+            if (chara->get_current_mp() > chara->get_max_mp()) {
+                chara->set_current_mp(chara->get_max_mp());
+            }
+            player.remove_item(item, 1);
+        }
+    }
+    else {
+        bool used = false;
+        for (int i = 0; i < party_size; i++) {
+            Character* chara = &party[i];
+            if (chara->get_current_mp() < chara->get_max_mp()) {
+                chara->set_current_mp(chara->get_current_mp() + item.get_amount());
+                if (chara->get_current_mp() > chara->get_max_mp()) {
+                    chara->set_current_mp(chara->get_max_mp());
+                }
+                used = true;
+            }
+        }
+        if (used) {
+            player.remove_item(item, 1);
+        }
+    }
+    return;
+}
+
+void use_revive_item(const Item& item) {
+    if (item.get_target_type() == "Single") {
+        Character* chara = &party[party_option];
+        if (chara->get_current_hp() == 0) {
+            chara->set_current_hp(1);
+            player.remove_item(item, 1);
+        }
+    }
+    else {
+        bool used = false;
+        for (int i=0; i<party_size; i++) {
+            Character* chara = &party[i];
+            if (chara->get_current_hp() == 0) {
+                chara->set_current_hp(1);
+                used = true;
+            }
+        }
+        if (used) {
+            player.remove_item(item, 1);
+        }
+    }
 }

@@ -12,12 +12,12 @@ class Item
 	public:
 		Item(std::string name, std::string description, int price, std::string type, int amount, std::string target_type);
 
-		std::string get_name();
-		std::string get_description();
-		int get_price();
-		std::string get_type();
-		int get_amount();
-		std::string get_target_type();
+		std::string get_name() const;
+		std::string get_description() const;
+		int get_price() const;
+		std::string get_type() const;
+		int get_amount() const;
+		std::string get_target_type() const;
 
 		void set_name(std::string name);
 		void set_description(std::string description);
@@ -26,4 +26,3 @@ class Item
 		void set_amount(int amount);
 		void set_target_type(std::string target_type);
 };
-

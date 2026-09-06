@@ -9,27 +9,27 @@ Item::Item(std::string name, std::string description, int price, std::string typ
 	this->target_type = target;
 }
 
-std::string Item::get_name() {
+std::string Item::get_name() const {
 	return this->name;
 }
 
-std::string Item::get_description() {
+std::string Item::get_description() const {
 	return this->description;
 }
 
-int Item::get_price() {
+int Item::get_price() const {
 	return this->price;
 }
 
-std::string Item::get_type() {
+std::string Item::get_type() const {
 	return this->type;
 }
 
-int Item::get_amount() {
+int Item::get_amount() const {
 	return this->amount;
 }
 
-std::string Item::get_target_type() {
+std::string Item::get_target_type() const {
 	return this->target_type;
 }
 
