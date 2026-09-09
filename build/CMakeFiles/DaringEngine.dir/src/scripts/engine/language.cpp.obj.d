@@ -134,6 +134,7 @@ CMakeFiles/DaringEngine.dir/src/scripts/engine/language.cpp.obj: \
  /opt/devkitpro/msys2/usr/lib/gcc/x86_64-pc-cygwin/15.2.0/include/c++/bits/vector.tcc \
  D:/Progettini/DaringEngine/include/scripts/classes/Item.h \
  D:/Progettini/DaringEngine/include/scripts/classes/Equip.h \
+ D:/Progettini/DaringEngine/SDL3-3.4.4/x86_64-w64-mingw32/include/SDL3/SDL_log.h \
  D:/Progettini/DaringEngine/include/scripts/engine/ui.h \
  D:/Progettini/DaringEngine/include/scripts/classes/Character.h \
  D:/Progettini/DaringEngine/include/scripts/classes/Attack.h \

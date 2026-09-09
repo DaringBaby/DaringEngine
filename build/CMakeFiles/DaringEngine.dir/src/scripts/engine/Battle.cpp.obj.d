@@ -143,10 +143,10 @@ CMakeFiles/DaringEngine.dir/src/scripts/engine/Battle.cpp.obj: \
  /opt/devkitpro/msys2/usr/lib/gcc/x86_64-pc-cygwin/15.2.0/include/c++/bits/istream.tcc \
  D:/Progettini/DaringEngine/include/scripts/classes/Character.h \
  D:/Progettini/DaringEngine/include/scripts/classes/Attack.h \
- D:/Progettini/DaringEngine/include/scripts/classes/Enemy.h \
- D:/Progettini/DaringEngine/include/scripts/classes/Item.h \
- D:/Progettini/DaringEngine/include/scripts/classes/PlayerVars.h \
  D:/Progettini/DaringEngine/include/scripts/classes/Equip.h \
+ D:/Progettini/DaringEngine/include/scripts/classes/Item.h \
+ D:/Progettini/DaringEngine/include/scripts/classes/Enemy.h \
+ D:/Progettini/DaringEngine/include/scripts/classes/PlayerVars.h \
  /opt/devkitpro/msys2/usr/lib/gcc/x86_64-pc-cygwin/15.2.0/include/c++/utility \
  /opt/devkitpro/msys2/usr/lib/gcc/x86_64-pc-cygwin/15.2.0/include/c++/bits/stl_relops.h \
  /opt/devkitpro/msys2/usr/lib/gcc/x86_64-pc-cygwin/15.2.0/include/c++/algorithm \

@@ -94,4 +94,6 @@ CMakeFiles/DaringEngine.dir/src/scripts/engine/ui.cpp.obj: \
  /opt/devkitpro/msys2/usr/lib/gcc/x86_64-pc-cygwin/15.2.0/include/c++/bits/stl_vector.h \
  /opt/devkitpro/msys2/usr/lib/gcc/x86_64-pc-cygwin/15.2.0/include/c++/bits/stl_bvector.h \
  /opt/devkitpro/msys2/usr/lib/gcc/x86_64-pc-cygwin/15.2.0/include/c++/bits/vector.tcc \
- D:/Progettini/DaringEngine/include/scripts/classes/Attack.h
+ D:/Progettini/DaringEngine/include/scripts/classes/Attack.h \
+ D:/Progettini/DaringEngine/include/scripts/classes/Equip.h \
+ D:/Progettini/DaringEngine/include/scripts/classes/Item.h

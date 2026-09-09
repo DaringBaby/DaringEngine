@@ -1,4 +1,5 @@
 #include "scripts/engine/language.h"
+#include "SDL3/SDL_log.h"
 #include "scripts/engine/ui.h"
 #include <fstream>
 
@@ -64,6 +65,7 @@ void script_update() {
     // esecuzione comandi
     if (cmd == "UP") {
         move_npc_request(*ctx.targetNpc, UP);
+        SDL_Log("akas");
         ctx.waitingForMove = true;
     }
     else if (cmd == "DOWN") {

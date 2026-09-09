@@ -1,14 +1,19 @@
 #include "scripts/classes/Equip.h"
 
-Equip::Equip(std::string name, std::string description, int price, int strength_bonus, int intelligence_bonus, int speed_bonus, int defense_bonus, int magic_defense_bonus, int luck_bonus)
+Equip::Equip(std::string name, std::string description, std::string equip_type, int price, int strength_bonus, int intelligence_bonus, int speed_bonus, int defense_bonus, int magic_defense_bonus, int luck_bonus)
     : Item(name, description, price, "EQUIP", 0, "") // chiamata esplicita al costruttore di Item
 {
+    this->equipped = false;
+    this->equip_type = equip_type;
     this->strength_bonus = strength_bonus;
     this->intelligence_bonus = intelligence_bonus;
     this->speed_bonus = speed_bonus;
     this->defense_bonus = defense_bonus;
     this->magic_defense_bonus = magic_defense_bonus;
 	this->luck_bonus = luck_bonus;
+}
+std::string Equip::get_equip_type() {
+    return this->equip_type;
 }
 int Equip::get_strength_bonus(){
     return this->strength_bonus;
@@ -27,6 +32,9 @@ int Equip::get_magic_defense_bonus(){
 }
 int Equip::get_luck_bonus(){
     return this->luck_bonus;
+}
+void Equip::set_equip_type(std::string equip_type) {
+    this->equip_type = equip_type;
 }
 void Equip::set_strength_bonus(int strength_bonus){
     this->strength_bonus = strength_bonus;

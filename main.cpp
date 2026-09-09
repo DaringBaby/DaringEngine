@@ -28,12 +28,13 @@ uint8_t player_facing;
 Uint64 last_time = SDL_GetTicksNS();
 
 float delta_time = 0.0f;
-uint8_t game_state = 0; // 0: none, 1: battle, 2: menu, 3: status, 4: item menu, 5: use item, 6: select party member to use item, 7: drop item
+uint8_t game_state = 0; // 0: none, 1: battle, 2: menu, 3: status, 4: item menu, 5: use item, 6: select party member to use item, 7: equip menu, 8: equip list
 uint8_t menu_option = 0;
 uint8_t status_option = 0;
 uint8_t item_option = 0;
 uint8_t use_option = 0;
 uint8_t party_option = 0;
+uint8_t equip_char_option = 0;
 
 bool can_move = true;
 
@@ -92,11 +93,22 @@ void use_item(const Item& item);
 void use_healing_item(const Item& item);
 void use_mana_item(const Item& item);
 void use_revive_item(const Item& item);
+void draw_equip_menu(SDL_Renderer* renderer);
+void equip_menu_choices(SDL_Event event);
 
-Character chara("Pasquel", "Knight", 5, 20, 7, 10, 7, 9, 5, 3, 2, atks);
-Character chara2("Babbo", "Hero", 5, 20, 7, 10, 7, 9, 5, 3, 2, atks);
-Character chara3("Pisnul", "Pippone", 5, 20, 7, 10, 7, 9, 5, 3, 2, atks);
-Character chara4("Sussy", "Baka", 5, 20, 7, 10, 7, 9, 5, 3, 2, atks);
+
+Character chara("Pasquel", "Knight", 5, 20, 7, 10, 7, 9, 5, 3, 2, atks, "None");
+Character chara2("Babbo", "Hero", 5, 20, 7, 10, 7, 9, 5, 3, 2, atks, "None");
+Character chara3("Pisnul", "Pippone", 5, 20, 7, 10, 7, 9, 5, 3, 2, atks, "None");
+Character chara4("Sussy", "Baka", 5, 20, 7, 10, 7, 9, 5, 3, 2, atks, "None");
+
+Equip none_wpn("NONE", "- - -", "WEAPON", 0, 0, 0, 0, 0, 0, 0);
+Equip none_head("NONE", "- - -", "HEAD", 0, 0, 0, 0, 0, 0, 0);
+Equip none_body("NONE", "- - -", "BODY", 0, 0, 0, 0, 0, 0, 0);
+Equip none_greaves("NONE", "- - -", "GREAVES", 0, 0, 0, 0, 0, 0, 0);
+Equip none_acc("NONE", "- - -", "HEAD", 0, 0, 0, 0, 0, 0, 0);
+
+
 
 uint8_t party_size = 4;
 
@@ -135,6 +147,12 @@ int main(int argc, char* argv[]) {
         party[i].set_current_hp(party[i].get_max_hp()/2);
         party[i].set_current_mp(party[i].get_max_mp()/2);
     }
+    player.add_equip(none_wpn, 1);
+    player.add_equip(none_head, 1);
+    player.add_equip(none_body, 1);
+    player.add_equip(none_greaves, 1);
+    player.add_equip(none_acc, 1);
+
     //
 
     for (int i = 0; i<10; i++) {
@@ -183,6 +201,9 @@ int main(int argc, char* argv[]) {
                         break;
                     case 6:
                         party_menu_choices(event);
+                        break;
+                    case 7:
+                        equip_menu_choices(event);
                 }
 
                 if (event.key.scancode == SDL_SCANCODE_E && event.key.repeat == 0) {
@@ -450,8 +471,10 @@ void draw_menu(SDL_Renderer* renderer) {
         draw_use_item_menu(renderer);
     }
     if (game_state == 6) {
-        SDL_Log(player.get_name().c_str());
         draw_use_item_to_party(renderer);
+    }
+    if (game_state == 7) {
+        draw_equip_menu(renderer);
     }
 }
 
@@ -471,6 +494,9 @@ void menu_choices(SDL_Event event) {
             case 1:
                 first_item = 0;
                 game_state = 4;
+                break;
+            case 2:
+                game_state = 7;
                 break;
             case 6:
                 menu_option = 0;
@@ -802,5 +828,80 @@ void use_revive_item(const Item& item) {
         if (used) {
             player.remove_item(item, 1);
         }
+    }
+}
+
+void draw_equip_menu(SDL_Renderer* renderer) {
+    // menu bg
+    SDL_FRect item_menu = { 224.0f, 64.0f, 224.0f, 272.0f };
+    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+    SDL_RenderFillRect(renderer, &item_menu);
+
+    // equip icon
+    SDL_Surface* wpn_icon = SDL_LoadBMP("img/sprites/gui/sword.bmp");
+    SDL_Texture* wpn = SDL_CreateTextureFromSurface(renderer, wpn_icon);
+    SDL_FRect wpn_rect = {256.0f, 112.0f, 32.0f, 32.0f };
+
+    SDL_Surface* head_icon = SDL_LoadBMP("img/sprites/gui/head.bmp");
+    SDL_Texture* head = SDL_CreateTextureFromSurface(renderer, head_icon);
+    SDL_FRect head_rect = {256.0f, 144.0f, 32.0f, 32.0f };
+
+    SDL_Surface* body_icon = SDL_LoadBMP("img/sprites/gui/body.bmp");
+    SDL_Texture* body = SDL_CreateTextureFromSurface(renderer, body_icon);
+    SDL_FRect body_rect = {256.0f, 176.0f, 32.0f, 32.0f };
+
+    SDL_Surface* greaves_icon = SDL_LoadBMP("img/sprites/gui/greaves.bmp");
+    SDL_Texture* greaves = SDL_CreateTextureFromSurface(renderer, greaves_icon);
+    SDL_FRect greaves_rect = {256.0f, 208.0f, 32.0f, 32.0f };
+
+    SDL_Surface* acc_icon = SDL_LoadBMP("img/sprites/gui/accessory.bmp");
+    SDL_Texture* acc = SDL_CreateTextureFromSurface(renderer, acc_icon);
+    SDL_FRect acc_rect = {256.0f, 240.0f, 32.0f, 32.0f };
+
+    SDL_RenderTexture(renderer, wpn, NULL, &wpn_rect);
+    SDL_RenderTexture(renderer, head, NULL, &head_rect);
+    SDL_RenderTexture(renderer, body, NULL, &body_rect);
+    SDL_RenderTexture(renderer, greaves, NULL, &greaves_rect);
+    SDL_RenderTexture(renderer, acc, NULL, &acc_rect);
+
+    SDL_SetRenderScale(renderer, 2.0f, 2.0f);
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+
+    draw_line(renderer, 240.0f, 80.0f, party[equip_char_option].get_name());
+    // stats
+    draw_line(renderer, 320.0f, 112.0f, "ATK:");
+    draw_line(renderer, 320.0f, 144.0f, "DEF:");
+    draw_line(renderer, 320.0f, 176.0f, "MAG:");
+    draw_line(renderer, 320.0f, 208.0f, "RES:");
+    draw_line(renderer, 320.0f, 240.0f, "SPD:");
+    draw_line(renderer, 320.0f, 272.0f, "LCK:");
+
+    draw_line(renderer, 400.0f, 112.0f, std::to_string(party[equip_char_option].get_current_strength()).c_str());
+    draw_line(renderer, 400.0f, 144.0f, std::to_string(party[equip_char_option].get_current_defense()).c_str());
+    draw_line(renderer, 400.0f, 176.0f, std::to_string(party[equip_char_option].get_current_intelligence()).c_str());
+    draw_line(renderer, 400.0f, 208.0f, std::to_string(party[equip_char_option].get_current_magic_defense()).c_str());
+    draw_line(renderer, 400.0f, 240.0f, std::to_string(party[equip_char_option].get_current_speed()).c_str());
+    draw_line(renderer, 400.0f, 272.0f, std::to_string(party[equip_char_option].get_current_luck()).c_str());
+
+    SDL_FRect item_desc = { 32.0f, 368.0f, 416.0f, 80.0f };
+    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+    SDL_RenderFillRect(renderer, &item_desc);
+
+
+    SDL_SetRenderScale(renderer, 2.0f, 2.0f);
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+
+    // SDL_RenderDebugText(renderer, 24.0f, 192.0f, (player.get_inventory()[item_option].get_description().c_str()));
+
+    SDL_SetRenderScale(renderer, 1.0f, 1.0f);
+    return;
+}
+
+void equip_menu_choices(SDL_Event event) {
+    if (event.key.scancode == SDL_SCANCODE_A && equip_char_option > 0) {
+        equip_char_option--;
+    }
+    else if (event.key.scancode == SDL_SCANCODE_S && equip_char_option < std::size(party)-1) {
+        equip_char_option++;
     }
 }

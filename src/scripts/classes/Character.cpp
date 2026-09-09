@@ -1,7 +1,7 @@
 #include "scripts/classes/Character.h"
 #include <string>
 
-Character::Character(std::string name, std::string classe, int level, int max_hp, int max_mp, int strength, int intelligence, int speed, int defense, int magic_defense, int luck, std::vector<Attack> attacks){
+Character::Character(std::string name, std::string classe, int level, int max_hp, int max_mp, int strength, int intelligence, int speed, int defense, int magic_defense, int luck, std::vector<Attack> attacks, std::string equip){
 		this->name = name;
 		this->classe = classe;
 		this->level = level;
@@ -24,6 +24,12 @@ Character::Character(std::string name, std::string classe, int level, int max_hp
 		this->current_defense = defense;
 		this->current_magic_defense = magic_defense;
 		this->current_luck = luck;
+		this->weapon = equip;
+		this->body = equip;
+		this->head = equip;
+		this->greaves = equip;
+		this->accessory = equip;
+
     }
 
 	void Character::set_name(std::string name){
@@ -228,4 +234,44 @@ Character::Character(std::string name, std::string classe, int level, int max_hp
 
 	void Character::add_attack(Attack attack) {
 		this->attacks.push_back(attack);
+	}
+
+	std::string Character::get_weapon() {
+		return weapon;
+	}
+
+	void Character::set_weapon(std::string weapon) {
+		this->weapon = weapon;
+	}
+
+	std::string Character::get_head() {
+		return head;
+	}
+
+	void Character::set_head(std::string head) {
+		this->head = head;
+	}
+
+	std::string Character::get_body() {
+		return body;
+	}
+
+	void Character::set_body(std::string body) {
+		this->body = body;
+	}
+
+	std::string Character::get_greaves() {
+		return greaves;
+	}
+
+	void Character::set_greaves(std::string greaves) {
+		this->greaves = greaves;
+	}
+
+	std::string Character::get_accessory() {
+		return accessory;
+	}
+
+	void Character::set_accessory(std::string accessory) {
+		this->accessory = accessory;
 	}

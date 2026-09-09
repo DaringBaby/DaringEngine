@@ -450,7 +450,9 @@ CMakeFiles/DaringEngine.dir/src/scripts/classes/Character.cpp.obj: D:/Progettini
   /usr/include/sys/stdio.h \
   /usr/include/wchar.h \
   D:/Progettini/DaringEngine/include/scripts/classes/Attack.h \
-  D:/Progettini/DaringEngine/include/scripts/classes/Character.h
+  D:/Progettini/DaringEngine/include/scripts/classes/Character.h \
+  D:/Progettini/DaringEngine/include/scripts/classes/Equip.h \
+  D:/Progettini/DaringEngine/include/scripts/classes/Item.h
 
 CMakeFiles/DaringEngine.dir/src/scripts/classes/Enemy.cpp.obj: D:/Progettini/DaringEngine/src/scripts/classes/Enemy.cpp \
   /opt/devkitpro/msys2/usr/lib/gcc/x86_64-pc-cygwin/15.2.0/include/c++/backward/binders.h \
@@ -1517,6 +1519,7 @@ CMakeFiles/DaringEngine.dir/src/scripts/engine/language.cpp.obj: D:/Progettini/D
   D:/Progettini/DaringEngine/SDL3-3.4.4/x86_64-w64-mingw32/include/SDL3/SDL_joystick.h \
   D:/Progettini/DaringEngine/SDL3-3.4.4/x86_64-w64-mingw32/include/SDL3/SDL_keyboard.h \
   D:/Progettini/DaringEngine/SDL3-3.4.4/x86_64-w64-mingw32/include/SDL3/SDL_keycode.h \
+  D:/Progettini/DaringEngine/SDL3-3.4.4/x86_64-w64-mingw32/include/SDL3/SDL_log.h \
   D:/Progettini/DaringEngine/SDL3-3.4.4/x86_64-w64-mingw32/include/SDL3/SDL_mouse.h \
   D:/Progettini/DaringEngine/SDL3-3.4.4/x86_64-w64-mingw32/include/SDL3/SDL_mutex.h \
   D:/Progettini/DaringEngine/SDL3-3.4.4/x86_64-w64-mingw32/include/SDL3/SDL_pen.h \
@@ -1648,6 +1651,8 @@ CMakeFiles/DaringEngine.dir/src/scripts/engine/ui.cpp.obj: D:/Progettini/DaringE
   /usr/include/wchar.h \
   D:/Progettini/DaringEngine/include/scripts/classes/Attack.h \
   D:/Progettini/DaringEngine/include/scripts/classes/Character.h \
+  D:/Progettini/DaringEngine/include/scripts/classes/Equip.h \
+  D:/Progettini/DaringEngine/include/scripts/classes/Item.h \
   D:/Progettini/DaringEngine/include/scripts/engine/ui.h
 
 

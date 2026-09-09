@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 #include "scripts/classes/Attack.h"
+#include "scripts/classes/Equip.h"
 
 // STRENGTH, INTELLIGENCE, SPEED, DEFENSE, MAGIC_DEFENSE
 
@@ -31,10 +32,15 @@ private:
 	int luck;
 	int current_luck;
 	std::vector<Attack> attacks;
+	std::string weapon;
+	std::string head;
+	std::string body;
+	std::string greaves;
+	std::string accessory;
 	// get attacks when leveling up in the future
 
 public:
-	Character(std::string name, std::string classe, int level, int max_hp, int max_mp, int strength, int intelligence, int speed, int defense, int magic_defense, int luck, std::vector<Attack> attacks);
+	Character(std::string name, std::string classe, int level, int max_hp, int max_mp, int strength, int intelligence, int speed, int defense, int magic_defense, int luck, std::vector<Attack> attacks, std::string equip);
 
 	void set_name(std::string name);
 
@@ -129,6 +135,26 @@ public:
 	void set_attacks(std::vector<Attack> attacks);
 
 	void add_attack(Attack attack);
+
+	std::string get_weapon();
+
+	void set_weapon(std::string weapon);
+
+	std::string get_head();
+
+	void set_head(std::string head);
+
+	std::string get_body();
+
+	void set_body(std::string body);
+
+	std::string get_greaves();
+
+	void set_greaves(std::string greaves);
+
+	std::string get_accessory();
+
+	void set_accessory(std::string accessory);
 };
 
 #endif
