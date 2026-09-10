@@ -33,6 +33,9 @@ int Equip::get_magic_defense_bonus(){
 int Equip::get_luck_bonus(){
     return this->luck_bonus;
 }
+bool Equip::get_equipped() {
+    return this->equipped;
+}
 void Equip::set_equip_type(std::string equip_type) {
     this->equip_type = equip_type;
 }
@@ -53,4 +56,7 @@ void Equip::set_magic_defense_bonus(int magic_defense_bonus){
 }
 void Equip::set_luck_bonus(int luck_bonus){
     this->luck_bonus = luck_bonus;
+}
+void Equip::set_equipped(bool equipped) {
+    this->equipped = equipped;
 }

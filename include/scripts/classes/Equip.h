@@ -21,6 +21,7 @@ class Equip: public Item
 		int get_defense_bonus();
 		int get_magic_defense_bonus();
 		int get_luck_bonus();
+		bool get_equipped();
 		void set_equip_type(std::string equip_type);
 		void set_strength_bonus(int strength_bonus);
 		void set_intelligence_bonus(int intelligence_bonus);
@@ -28,4 +29,5 @@ class Equip: public Item
 		void set_defense_bonus(int defense_bonus);
 		void set_magic_defense_bonus(int magic_defense_bonus);
 		void set_luck_bonus(int luck_bonus);
+		void set_equipped(bool equipped);
 };

@@ -35,6 +35,8 @@ uint8_t item_option = 0;
 uint8_t use_option = 0;
 uint8_t party_option = 0;
 uint8_t equip_char_option = 0;
+uint8_t equip_piece_option = 0;
+uint8_t equip_list_option = 0;
 
 bool can_move = true;
 
@@ -46,6 +48,8 @@ std::vector<Character> party;
 std::vector<Attack> atks;
 std::vector<Item> items;
 
+// equip
+std::vector<Equip> available_equip;
 
 PlayerVars player;
 
@@ -95,12 +99,16 @@ void use_mana_item(const Item& item);
 void use_revive_item(const Item& item);
 void draw_equip_menu(SDL_Renderer* renderer);
 void equip_menu_choices(SDL_Event event);
+void equip_list_choices(SDL_Event event);
+void draw_equip_list(SDL_Renderer* renderer);
+void load_available_equip(uint8_t equip_piece);
+std::string find_equip_description();
 
 
-Character chara("Pasquel", "Knight", 5, 20, 7, 10, 7, 9, 5, 3, 2, atks, "None");
-Character chara2("Babbo", "Hero", 5, 20, 7, 10, 7, 9, 5, 3, 2, atks, "None");
-Character chara3("Pisnul", "Pippone", 5, 20, 7, 10, 7, 9, 5, 3, 2, atks, "None");
-Character chara4("Sussy", "Baka", 5, 20, 7, 10, 7, 9, 5, 3, 2, atks, "None");
+Character chara("Pasquel", "Knight", 5, 20, 7, 10, 7, 9, 5, 3, 2, atks, "NONE");
+Character chara2("Babbo", "Hero", 5, 20, 7, 10, 7, 9, 5, 3, 2, atks, "NONE");
+Character chara3("Pisnul", "Pippone", 5, 20, 7, 10, 7, 9, 5, 3, 2, atks, "NONE");
+Character chara4("Sussy", "Baka", 5, 20, 7, 10, 7, 9, 5, 3, 2, atks, "NONE");
 
 Equip none_wpn("NONE", "- - -", "WEAPON", 0, 0, 0, 0, 0, 0, 0);
 Equip none_head("NONE", "- - -", "HEAD", 0, 0, 0, 0, 0, 0, 0);
@@ -204,6 +212,8 @@ int main(int argc, char* argv[]) {
                         break;
                     case 7:
                         equip_menu_choices(event);
+                    case 8:
+                        equip_list_choices(event);
                 }
 
                 if (event.key.scancode == SDL_SCANCODE_E && event.key.repeat == 0) {
@@ -475,6 +485,9 @@ void draw_menu(SDL_Renderer* renderer) {
     }
     if (game_state == 7) {
         draw_equip_menu(renderer);
+    }
+    if (game_state == 8) {
+        draw_equip_list(renderer);
     }
 }
 
@@ -882,16 +895,22 @@ void draw_equip_menu(SDL_Renderer* renderer) {
     draw_line(renderer, 400.0f, 208.0f, std::to_string(party[equip_char_option].get_current_magic_defense()).c_str());
     draw_line(renderer, 400.0f, 240.0f, std::to_string(party[equip_char_option].get_current_speed()).c_str());
     draw_line(renderer, 400.0f, 272.0f, std::to_string(party[equip_char_option].get_current_luck()).c_str());
-
+    // desc
     SDL_FRect item_desc = { 32.0f, 368.0f, 416.0f, 80.0f };
     SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
     SDL_RenderFillRect(renderer, &item_desc);
-
-
+    // arrow
+    SDL_Surface* arrow = SDL_LoadBMP("img/sprites/prova/arrow.bmp");
+    SDL_Texture* arrow_equip = SDL_CreateTextureFromSurface(renderer, arrow);
+    SDL_FRect arr_equip_rect = {232.0f, 120.0f + 32*(equip_piece_option), 16.0f, 16.0f };
+    SDL_RenderTexture(renderer, arrow_equip, NULL, &arr_equip_rect);
+    //
     SDL_SetRenderScale(renderer, 2.0f, 2.0f);
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+    //
+    // get description
+    draw_line(renderer, 48.0f, 384.0f, find_equip_description().c_str());
 
-    // SDL_RenderDebugText(renderer, 24.0f, 192.0f, (player.get_inventory()[item_option].get_description().c_str()));
 
     SDL_SetRenderScale(renderer, 1.0f, 1.0f);
     return;
@@ -904,4 +923,103 @@ void equip_menu_choices(SDL_Event event) {
     else if (event.key.scancode == SDL_SCANCODE_S && equip_char_option < std::size(party)-1) {
         equip_char_option++;
     }
+    else if (event.key.scancode == SDL_SCANCODE_UP && equip_piece_option > 0) {
+        equip_piece_option--;
+    }
+    else if (event.key.scancode == SDL_SCANCODE_DOWN && equip_piece_option < 4) {
+        equip_piece_option++;
+    }
+    else if (event.key.scancode == SDL_SCANCODE_ESCAPE) {
+        equip_piece_option = 0;
+        equip_char_option = 0;
+        game_state = 2;
+    }
+    else if (event.key.scancode == SDL_SCANCODE_E) {
+        game_state = 8;
+        load_available_equip(equip_piece_option);
+    }
+}
+
+void equip_list_choices(SDL_Event event) {
+    if (event.key.scancode == SDL_SCANCODE_UP && equip_list_option > 0) {
+        equip_list_option--;
+    }
+    else if (event.key.scancode == SDL_SCANCODE_DOWN && equip_list_option < std::size(available_equip)-1) {
+        equip_list_option++;
+    }
+}
+
+void load_available_equip(uint8_t equip_piece) {
+    available_equip.clear();
+    std::string piece;
+    switch (equip_piece) {
+        case 0:
+            piece = "WEAPON";
+            break;
+        case 1:
+            piece = "HEAD";
+            break;
+        case 2:
+            piece = "BODY";
+            break;
+        case 3:
+            piece = "GREAVES";
+            break;
+        case 4:
+            piece = "ACCESSORY";
+            break;
+    }
+    for (int i=0; i < std::size(player.get_equipment()); i++) {
+        if (player.get_equipment()[i].get_equip_type() == piece && !player.get_equipment()[i].get_equipped()) {
+            available_equip.push_back(player.get_equipment()[i]);
+        }
+    }
+    return;
+}
+
+void draw_equip_list(SDL_Renderer* renderer) {
+    // menu bg
+    SDL_FRect item_menu = { 224.0f, 64.0f, 224.0f, 272.0f };
+    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+    SDL_RenderFillRect(renderer, &item_menu);
+    // arrow
+    SDL_Surface* arrow = SDL_LoadBMP("img/sprites/prova/arrow.bmp");
+    SDL_Texture* arrow_equip_list = SDL_CreateTextureFromSurface(renderer, arrow);
+    SDL_FRect arr_equip_list_rect = {228.0f, 80.0f + 32*(equip_list_option), 16.0f, 16.0f };
+    SDL_RenderTexture(renderer, arrow_equip_list, NULL, &arr_equip_list_rect);
+    // desc
+    SDL_FRect item_desc = { 32.0f, 368.0f, 416.0f, 80.0f };
+    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+    SDL_RenderFillRect(renderer, &item_desc);
+    draw_line(renderer, 48.0f, 384.0f, (available_equip[equip_list_option].get_description().c_str()));
+    //
+    draw_line(renderer, 248.0f, 80.0f, available_equip[equip_list_option].get_name().c_str());
+    return;
+}
+
+std::string find_equip_description() {
+    std::string equip_name;
+    switch (equip_piece_option) {
+        case 0:
+            equip_name = party[equip_char_option].get_weapon();
+            break;
+        case 1:
+            equip_name = party[equip_char_option].get_head();
+            break;
+        case 2:
+            equip_name = party[equip_char_option].get_body();
+            break;
+        case 3:
+            equip_name = party[equip_char_option].get_greaves();
+            break;
+        case 4:
+            equip_name = party[equip_char_option].get_accessory();
+            break;
+    }
+    for (int i=0; i<std::size(player.get_equipment()); i++) {
+        if (equip_name == player.get_equipment()[i].get_name()) {
+            return player.get_equipment()[i].get_description();
+        }
+    }
+    return "?";
 }
