@@ -25,7 +25,8 @@ public:
 		std::vector<int> get_items_quantity();
 		void add_item(Item item, int quantity);
 		void remove_item(Item item, int quantity);
-		std::vector<Equip> get_equipment();
+		void set_equipment(std::vector<Equip> equip);
+		std::vector<Equip>& get_equipment();
 		std::vector<int> get_equip_quantity();
 		void add_equip(Equip equip, int quantity);
 		void remove_equip(Equip equip, int quantity);

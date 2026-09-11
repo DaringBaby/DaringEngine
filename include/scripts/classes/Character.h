@@ -155,6 +155,17 @@ public:
 	std::string get_accessory();
 
 	void set_accessory(std::string accessory);
+
+	void change_equipment(Equip equip, std::vector<Equip>& all_equip);
+
+	std::string find_equip_name(std::string eq_type);
+
+	void equip_selected_equip(Equip equip, std::string eq_type);
+
+	void set_equipped_state_selected(bool state, std::vector<Equip>& all_equip, std::string eq_name);
+
+	void recalc_stats(std::vector<Equip>& all_equip);
+
 };
 
 #endif

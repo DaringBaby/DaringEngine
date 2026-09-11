@@ -41,7 +41,7 @@ uint8_t equip_list_option = 0;
 bool can_move = true;
 
 int first_item = 0;
-
+uint8_t first_equip = 0;
 
 std::vector<Entity> npcs;
 std::vector<Character> party;
@@ -110,13 +110,50 @@ Character chara2("Babbo", "Hero", 5, 20, 7, 10, 7, 9, 5, 3, 2, atks, "NONE");
 Character chara3("Pisnul", "Pippone", 5, 20, 7, 10, 7, 9, 5, 3, 2, atks, "NONE");
 Character chara4("Sussy", "Baka", 5, 20, 7, 10, 7, 9, 5, 3, 2, atks, "NONE");
 
-Equip none_wpn("NONE", "- - -", "WEAPON", 0, 0, 0, 0, 0, 0, 0);
-Equip none_head("NONE", "- - -", "HEAD", 0, 0, 0, 0, 0, 0, 0);
-Equip none_body("NONE", "- - -", "BODY", 0, 0, 0, 0, 0, 0, 0);
-Equip none_greaves("NONE", "- - -", "GREAVES", 0, 0, 0, 0, 0, 0, 0);
-Equip none_acc("NONE", "- - -", "HEAD", 0, 0, 0, 0, 0, 0, 0);
+Equip none_wpn("NONE", "- Vuoto -", "WEAPON", 0, 0, 0, 0, 0, 0, 0);
+Equip none_head("NONE", "- Vuoto -", "HEAD", 0, 0, 0, 0, 0, 0, 0);
+Equip none_body("NONE", "- Vuoto -", "BODY", 0, 0, 0, 0, 0, 0, 0);
+Equip none_greaves("NONE", "- Vuoto -", "GREAVES", 0, 0, 0, 0, 0, 0, 0);
+Equip none_acc("NONE", "- Vuoto -", "ACC", 0, 0, 0, 0, 0, 0, 0);
 
+// equip debug
+std::vector<Equip> all_equip = {
+    Equip("Spada di Ferro", "Lama solida di ferro.\nSTR +6", "WEAPON", 50, 6, 0, 0, 0, 0, 0),
+    Equip("Bastone di Quercia", "Canalizza la magia base.\nINT +7, MDEF +2, STR +1", "WEAPON", 50, 1, 7, 0, 0, 2, 0),
+    Equip("Pugnali Gemelli", "Lame corte rapide.\nSTR +4, SPD +4, LCK +2", "WEAPON", 65, 4, 0, 4, 0, 0, 2),
+    Equip("Spadone d'Acciaio", "Lama pesante da guerra.\nSTR +15, DEF +2, SPD -2", "WEAPON", 180, 15, 0, -2, 2, 0, 0),
+    Equip("Verga della Tempesta", "Emana scariche di fulmini.\nINT +16, MDEF +4, SPD +1, LCK +1", "WEAPON", 210, 0, 16, 1, 0, 4, 1),
+    Equip("Stocco del Duellante", "Ideale per colpi letali.\nSTR +10, SPD +6, LCK +5, INT +2", "WEAPON", 195, 10, 2, 6, 0, 0, 5),
+    Equip("Falce dell'Eclissi", "Lama oscura devastante.\nSTR +25, INT +12, MDEF +5, LCK +4, SPD +3", "WEAPON", 500, 25, 12, 3, 0, 5, 4),
 
+    Equip("Berretto di Cuoio", "Copricapo semplice.\nDEF +2, SPD +1, MDEF +1", "HEAD", 30, 0, 0, 1, 2, 1, 0),
+    Equip("Cappello da Mago", "Tessuto imbevuto di mana.\nINT +4, MDEF +3, DEF +1, LCK +1", "HEAD", 45, 0, 4, 0, 1, 3, 1),
+    Equip("Elmo di Ferro", "Solida protezione cranica.\nDEF +6, STR +1, MDEF +1, SPD -1", "HEAD", 70, 1, 0, -1, 6, 1, 0),
+    Equip("Diadema Lunare", "Brilla di luce argentea.\nINT +8, MDEF +7, LCK +3, DEF +2, SPD +1", "HEAD", 160, 0, 8, 1, 2, 7, 3),
+    Equip("Maschera dell'Ombra", "Occulta il volto di chi la indossa.\nSPD +5, LCK +4, DEF +3, STR +2, MDEF +2", "HEAD", 150, 2, 0, 5, 3, 2, 4),
+    Equip("Visiera del Paladino", "Benedetta dal fuoco sacro.\nDEF +12, MDEF +8, STR +3, INT +3, LCK +2", "HEAD", 320, 3, 3, 0, 12, 8, 2),
+
+    Equip("Tunica di Lino", "Veste leggera comune.\nDEF +2, MDEF +3, INT +2, SPD +1", "BODY", 35, 0, 2, 1, 2, 3, 0),
+    Equip("Cotta di Maglia", "Maglie di ferro intrecciate.\nDEF +8, MDEF +2, SPD -1", "BODY", 100, 0, 0, -1, 8, 2, 0),
+    Equip("Gabbana del Furfante", "Pelle morbida e scura.\nSPD +5, DEF +5, LCK +3, MDEF +3, STR +1", "BODY", 120, 1, 0, 5, 5, 3, 3),
+    Equip("Corazza a Piastre", "Massima corazza d'acciaio.\nDEF +18, MDEF +4, STR +2, SPD -3, LCK -1", "BODY", 280, 2, 0, -3, 18, 4, -1),
+    Equip("Manto dell'Arcanista", "Seta intessuta di incanti.\nINT +14, MDEF +14, DEF +4, SPD +2, LCK +2", "BODY", 260, 0, 14, 2, 4, 14, 2),
+    Equip("Pettorale del Drago", "Scaglie vulcaniche indistruttibili.\nDEF +22, MDEF +16, STR +8, INT +5, LCK +2", "BODY", 600, 8, 5, 0, 22, 16, 2),
+
+    Equip("Stivali di Cuoio", "Calzature da viaggio.\nSPD +2, DEF +1, MDEF +1", "GREAVES", 25, 0, 0, 2, 1, 1, 0),
+    Equip("Schinieri di Ferro", "Piastre rigide da fante.\nDEF +5, MDEF +1, SPD -1", "GREAVES", 60, 0, 0, -1, 5, 1, 0),
+    Equip("Sandali della Brezza", "Leggerissimi e scattanti.\nSPD +6, MDEF +3, INT +2, DEF +2, LCK +2", "GREAVES", 110, 0, 2, 6, 2, 3, 2),
+    Equip("Stivali da Battaglia", "Forniscono trazione e forza.\nDEF +7, STR +3, MDEF +3, SPD +1", "GREAVES", 140, 3, 0, 1, 7, 3, 0),
+    Equip("Gambali dell'Araldo", "Placcati in argento lucido.\nDEF +11, MDEF +9, INT +4, STR +2, SPD +2, LCK +1", "GREAVES", 290, 2, 4, 2, 11, 9, 1),
+
+    Equip("Anello di Rame", "Semplice anello portafortuna.\nSTR +2, DEF +1", "ACC", 40, 2, 0, 0, 1, 0, 0),
+    Equip("Amuleto di Zaffiro", "Riflette la concentrazione.\nINT +5, MDEF +3", "ACC", 60, 0, 5, 0, 0, 3, 0),
+    Equip("Ciondolo della Fortuna", "Incarna la pura sorte.\nLCK +8, SPD +1", "ACC", 80, 0, 0, 1, 0, 0, 8),
+    Equip("Fascia del Berserker", "Aumenta la furia cieca.\nSTR +8, SPD +3, DEF -3, MDEF -3, INT -2", "ACC", 150, 8, -2, 3, -3, -3, 0),
+    Equip("Gemma del Tempo", "Dona riflessi fulminei.\nSPD +10, INT +3, MDEF +2, LCK +3, DEF +1", "ACC", 220, 0, 3, 10, 1, 2, 3),
+    Equip("Sigillo dei Re", "Antico simbolo di potere supremo.\nSTR +5, INT +5, SPD +5, DEF +5, MDEF +5, LCK +5", "ACC", 450, 5, 5, 5, 5, 5, 5)
+};
+//
 
 uint8_t party_size = 4;
 
@@ -155,6 +192,7 @@ int main(int argc, char* argv[]) {
         party[i].set_current_hp(party[i].get_max_hp()/2);
         party[i].set_current_mp(party[i].get_max_mp()/2);
     }
+    player.set_equipment(all_equip);
     player.add_equip(none_wpn, 1);
     player.add_equip(none_head, 1);
     player.add_equip(none_body, 1);
@@ -212,6 +250,7 @@ int main(int argc, char* argv[]) {
                         break;
                     case 7:
                         equip_menu_choices(event);
+                        break;
                     case 8:
                         equip_list_choices(event);
                 }
@@ -941,11 +980,32 @@ void equip_menu_choices(SDL_Event event) {
 }
 
 void equip_list_choices(SDL_Event event) {
-    if (event.key.scancode == SDL_SCANCODE_UP && equip_list_option > 0) {
+    if (event.key.scancode == SDL_SCANCODE_UP && equip_list_option > first_equip) {
         equip_list_option--;
     }
-    else if (event.key.scancode == SDL_SCANCODE_DOWN && equip_list_option < std::size(available_equip)-1) {
+    else if (event.key.scancode == SDL_SCANCODE_DOWN && equip_list_option < first_equip+7 && equip_list_option < std::size(available_equip)-1) {
         equip_list_option++;
+    }
+    else if (event.key.scancode == SDL_SCANCODE_S && std::size(available_equip) >= first_equip + 7) {
+        first_equip += 8;
+        equip_list_option = first_equip;
+    }
+    else if (event.key.scancode == SDL_SCANCODE_A && first_equip != 0) {
+        first_equip -= 8;
+        equip_list_option = first_equip;
+    }
+    else if (event.key.scancode == SDL_SCANCODE_ESCAPE) {
+        equip_list_option = 0;
+        first_equip = 0;
+        game_state = 7;
+    }
+    else if (event.key.scancode == SDL_SCANCODE_E) {
+        std::vector<Equip>& equipment = player.get_equipment();
+        party[equip_char_option].change_equipment(available_equip[equip_list_option], equipment);
+        equip_list_option = 0;
+        first_equip = 0;
+        game_state = 7;
+
     }
 }
 
@@ -966,7 +1026,7 @@ void load_available_equip(uint8_t equip_piece) {
             piece = "GREAVES";
             break;
         case 4:
-            piece = "ACCESSORY";
+            piece = "ACC";
             break;
     }
     for (int i=0; i < std::size(player.get_equipment()); i++) {
@@ -982,10 +1042,16 @@ void draw_equip_list(SDL_Renderer* renderer) {
     SDL_FRect item_menu = { 224.0f, 64.0f, 224.0f, 272.0f };
     SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
     SDL_RenderFillRect(renderer, &item_menu);
+
+    if (available_equip.empty()) {
+        draw_line(renderer, 248.0f, 80.0f, "- No equip -");
+        return;
+    }
+
     // arrow
     SDL_Surface* arrow = SDL_LoadBMP("img/sprites/prova/arrow.bmp");
     SDL_Texture* arrow_equip_list = SDL_CreateTextureFromSurface(renderer, arrow);
-    SDL_FRect arr_equip_list_rect = {228.0f, 80.0f + 32*(equip_list_option), 16.0f, 16.0f };
+    SDL_FRect arr_equip_list_rect = {228.0f, 80.0f + 16*(equip_list_option - first_equip), 16.0f, 16.0f };
     SDL_RenderTexture(renderer, arrow_equip_list, NULL, &arr_equip_list_rect);
     // desc
     SDL_FRect item_desc = { 32.0f, 368.0f, 416.0f, 80.0f };
@@ -993,7 +1059,10 @@ void draw_equip_list(SDL_Renderer* renderer) {
     SDL_RenderFillRect(renderer, &item_desc);
     draw_line(renderer, 48.0f, 384.0f, (available_equip[equip_list_option].get_description().c_str()));
     //
-    draw_line(renderer, 248.0f, 80.0f, available_equip[equip_list_option].get_name().c_str());
+    for (int i = 0; i+first_equip < std::size(available_equip) && i < 8; i++) {
+        draw_line(renderer, 248.0f, 80.0f + 16.0f * i, (available_equip[first_equip + i].get_name()).c_str());
+    }
+
     return;
 }
 

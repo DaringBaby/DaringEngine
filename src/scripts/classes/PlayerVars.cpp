@@ -66,7 +66,7 @@ void PlayerVars::remove_item(Item item, int quantity) {
 	}
 }
 
-std::vector<Equip> PlayerVars::get_equipment() {
+std::vector<Equip>& PlayerVars::get_equipment() {
 	return this->equipment;
 }
 
@@ -112,4 +112,9 @@ void PlayerVars::set_flag(int index, bool value) {
 
 void PlayerVars::add_flag(bool value) {
 	this->flags.push_back(value);
+}
+
+void PlayerVars::set_equipment(std::vector<Equip> equip) {
+    this->equipment = equip;
+    this->equip_quantity.assign(equip.size(), 1);
 }

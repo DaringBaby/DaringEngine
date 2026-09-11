@@ -275,3 +275,124 @@ Character::Character(std::string name, std::string classe, int level, int max_hp
 	void Character::set_accessory(std::string accessory) {
 		this->accessory = accessory;
 	}
+
+	void Character::change_equipment(Equip equip, std::vector<Equip>& all_equip) {
+	// deve ogni volta rifare tutte le stats
+	    std::string new_equip_name = equip.get_name();
+    	// trova l'equip precedente e segnalo non equippato
+    	std::string eq_type = equip.get_equip_type();
+    	std::string eq_name = find_equip_name(eq_type);
+    	set_equipped_state_selected(false, all_equip, eq_name);
+        // equipaggia l'equip scelto ora (prima delle stats)
+        equip_selected_equip(equip, eq_name);
+        set_equipped_state_selected(true, all_equip, new_equip_name);
+        //calcola stats
+        recalc_stats(all_equip);
+        return;
+
+	}
+
+	std::string Character::find_equip_name(std::string eq_type) {
+    	std::string eq_name = "";
+        if (eq_type == "WEAPON") {
+    	    eq_name = this->get_weapon();
+    	}
+        else if (eq_type == "HEAD") {
+    	    eq_name = this->get_head();
+    	}
+        else if (eq_type == "BODY") {
+    	    eq_name = this->get_body();
+    	}
+        else if (eq_type == "GREAVES") {
+    	    eq_name = this->get_greaves();
+    	}
+        else if (eq_type == "ACC") {
+    	    eq_name = this->get_accessory();
+    	}
+        return eq_name;
+	}
+
+	void Character::equip_selected_equip(Equip equip, std::string eq_type) {
+	    std::string eq_name = equip.get_name();
+        if (eq_type == "WEAPON") {
+    	    this->set_weapon(eq_name);
+    	}
+        else if (eq_type == "HEAD") {
+    	    this->set_head(eq_name);
+    	}
+        else if (eq_type == "BODY") {
+    	    this->set_body(eq_name);
+    	}
+        else if (eq_type == "GREAVES") {
+    	    this->set_greaves(eq_name);
+    	}
+        else if (eq_type == "ACC") {
+    	    this->set_accessory(eq_name);
+    	}
+	}
+
+	void Character::set_equipped_state_selected(bool state, std::vector<Equip>& all_equip, std::string eq_name) {
+    	for (int i=0; i < std::size(all_equip); i++) {
+            if (eq_name == all_equip[i].get_name() && eq_name != "NONE") {
+                all_equip[i].set_equipped(state);
+            }
+        }
+	}
+
+	void Character::recalc_stats(std::vector<Equip>& all_equip) {
+	    int str_bonus = 0;
+		int def_bonus = 0;
+		int int_bonus = 0;
+		int mdef_bonus = 0;
+		int lck_bonus = 0;
+		int spd_bonus = 0;
+	    for (int i = 0; i < std::size(all_equip); i++) {
+			if (all_equip[i].get_name() == this->get_weapon()) {
+			    str_bonus += all_equip[i].get_strength_bonus();
+				def_bonus += all_equip[i].get_defense_bonus();
+				int_bonus += all_equip[i].get_intelligence_bonus();
+				mdef_bonus += all_equip[i].get_magic_defense_bonus();
+				lck_bonus += all_equip[i].get_luck_bonus();
+				spd_bonus += all_equip[i].get_speed_bonus();
+			}
+			if (all_equip[i].get_name() == this->get_head()) {
+			    str_bonus += all_equip[i].get_strength_bonus();
+				def_bonus += all_equip[i].get_defense_bonus();
+				int_bonus += all_equip[i].get_intelligence_bonus();
+				mdef_bonus += all_equip[i].get_magic_defense_bonus();
+				lck_bonus += all_equip[i].get_luck_bonus();
+				spd_bonus += all_equip[i].get_speed_bonus();
+			}
+			if (all_equip[i].get_name() == this->get_body()) {
+			    str_bonus += all_equip[i].get_strength_bonus();
+				def_bonus += all_equip[i].get_defense_bonus();
+				int_bonus += all_equip[i].get_intelligence_bonus();
+				mdef_bonus += all_equip[i].get_magic_defense_bonus();
+				lck_bonus += all_equip[i].get_luck_bonus();
+				spd_bonus += all_equip[i].get_speed_bonus();
+			}
+			if (all_equip[i].get_name() == this->get_greaves()) {
+			    str_bonus += all_equip[i].get_strength_bonus();
+				def_bonus += all_equip[i].get_defense_bonus();
+				int_bonus += all_equip[i].get_intelligence_bonus();
+				mdef_bonus += all_equip[i].get_magic_defense_bonus();
+				lck_bonus += all_equip[i].get_luck_bonus();
+				spd_bonus += all_equip[i].get_speed_bonus();
+			}
+			if (all_equip[i].get_name() == this->get_accessory()) {
+			    str_bonus += all_equip[i].get_strength_bonus();
+				def_bonus += all_equip[i].get_defense_bonus();
+				int_bonus += all_equip[i].get_intelligence_bonus();
+				mdef_bonus += all_equip[i].get_magic_defense_bonus();
+				lck_bonus += all_equip[i].get_luck_bonus();
+				spd_bonus += all_equip[i].get_speed_bonus();
+			}
+		}
+		this->current_strength = this->strength + str_bonus;
+		this->current_defense = this->defense + def_bonus;
+		this->current_intelligence = this->intelligence + int_bonus;
+		this->current_magic_defense = this->magic_defense + mdef_bonus;
+		this->current_luck = this->luck + lck_bonus;
+		this->current_speed = this->speed + spd_bonus;
+		return;
+	}
