@@ -284,7 +284,7 @@ Character::Character(std::string name, std::string classe, int level, int max_hp
     	std::string eq_name = find_equip_name(eq_type);
     	set_equipped_state_selected(false, all_equip, eq_name);
         // equipaggia l'equip scelto ora (prima delle stats)
-        equip_selected_equip(equip, eq_name);
+        equip_selected_equip(equip, eq_type);
         set_equipped_state_selected(true, all_equip, new_equip_name);
         //calcola stats
         recalc_stats(all_equip);
