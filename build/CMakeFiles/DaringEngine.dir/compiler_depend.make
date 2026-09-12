@@ -55,6 +55,7 @@ CMakeFiles/DaringEngine.dir/main.cpp.obj: D:/Progettini/DaringEngine/main.cpp \
   /opt/devkitpro/msys2/usr/lib/gcc/x86_64-pc-cygwin/15.2.0/include/c++/bits/stl_pair.h \
   /opt/devkitpro/msys2/usr/lib/gcc/x86_64-pc-cygwin/15.2.0/include/c++/bits/stl_uninitialized.h \
   /opt/devkitpro/msys2/usr/lib/gcc/x86_64-pc-cygwin/15.2.0/include/c++/bits/stl_vector.h \
+  /opt/devkitpro/msys2/usr/lib/gcc/x86_64-pc-cygwin/15.2.0/include/c++/bits/stream_iterator.h \
   /opt/devkitpro/msys2/usr/lib/gcc/x86_64-pc-cygwin/15.2.0/include/c++/bits/streambuf.tcc \
   /opt/devkitpro/msys2/usr/lib/gcc/x86_64-pc-cygwin/15.2.0/include/c++/bits/streambuf_iterator.h \
   /opt/devkitpro/msys2/usr/lib/gcc/x86_64-pc-cygwin/15.2.0/include/c++/bits/string_view.tcc \
@@ -86,6 +87,7 @@ CMakeFiles/DaringEngine.dir/main.cpp.obj: D:/Progettini/DaringEngine/main.cpp \
   /opt/devkitpro/msys2/usr/lib/gcc/x86_64-pc-cygwin/15.2.0/include/c++/iosfwd \
   /opt/devkitpro/msys2/usr/lib/gcc/x86_64-pc-cygwin/15.2.0/include/c++/iostream \
   /opt/devkitpro/msys2/usr/lib/gcc/x86_64-pc-cygwin/15.2.0/include/c++/istream \
+  /opt/devkitpro/msys2/usr/lib/gcc/x86_64-pc-cygwin/15.2.0/include/c++/iterator \
   /opt/devkitpro/msys2/usr/lib/gcc/x86_64-pc-cygwin/15.2.0/include/c++/new \
   /opt/devkitpro/msys2/usr/lib/gcc/x86_64-pc-cygwin/15.2.0/include/c++/ostream \
   /opt/devkitpro/msys2/usr/lib/gcc/x86_64-pc-cygwin/15.2.0/include/c++/pstl/pstl_config.h \
@@ -1766,9 +1768,9 @@ D:/Progettini/DaringEngine/SDL3-3.4.4/x86_64-w64-mingw32/include/SDL3/SDL_messag
 
 /opt/devkitpro/msys2/usr/lib/gcc/x86_64-pc-cygwin/15.2.0/include/c++/bits/locale_facets.tcc:
 
-/opt/devkitpro/msys2/usr/lib/gcc/x86_64-pc-cygwin/15.2.0/include/c++/bits/localefwd.h:
-
 /opt/devkitpro/msys2/usr/lib/gcc/x86_64-pc-cygwin/15.2.0/include/c++/cctype:
+
+/opt/devkitpro/msys2/usr/lib/gcc/x86_64-pc-cygwin/15.2.0/include/c++/bits/localefwd.h:
 
 D:/Progettini/DaringEngine/SDL3-3.4.4/x86_64-w64-mingw32/include/SDL3/SDL_endian.h:
 
@@ -1829,6 +1831,8 @@ D:/Progettini/DaringEngine/SDL3-3.4.4/x86_64-w64-mingw32/include/SDL3/SDL_blendm
 /opt/devkitpro/msys2/usr/lib/gcc/x86_64-pc-cygwin/15.2.0/include/c++/bits/stl_uninitialized.h:
 
 /opt/devkitpro/msys2/usr/lib/gcc/x86_64-pc-cygwin/15.2.0/include/c++/bits/stl_vector.h:
+
+/opt/devkitpro/msys2/usr/lib/gcc/x86_64-pc-cygwin/15.2.0/include/c++/bits/stream_iterator.h:
 
 /usr/include/sys/types.h:
 
@@ -1901,6 +1905,10 @@ D:/Progettini/DaringEngine/SDL3-3.4.4/x86_64-w64-mingw32/include/SDL3/SDL_surfac
 /opt/devkitpro/msys2/usr/lib/gcc/x86_64-pc-cygwin/15.2.0/include/c++/iosfwd:
 
 /opt/devkitpro/msys2/usr/lib/gcc/x86_64-pc-cygwin/15.2.0/include/c++/istream:
+
+D:/Progettini/DaringEngine/SDL3-3.4.4/x86_64-w64-mingw32/include/SDL3/SDL_render.h:
+
+/opt/devkitpro/msys2/usr/lib/gcc/x86_64-pc-cygwin/15.2.0/include/c++/iterator:
 
 /opt/devkitpro/msys2/usr/lib/gcc/x86_64-pc-cygwin/15.2.0/include/c++/new:
 
@@ -2129,8 +2137,6 @@ D:/Progettini/DaringEngine/SDL3-3.4.4/x86_64-w64-mingw32/include/SDL3/SDL_proper
 D:/Progettini/DaringEngine/SDL3-3.4.4/x86_64-w64-mingw32/include/SDL3/SDL_sensor.h:
 
 D:/Progettini/DaringEngine/SDL3-3.4.4/x86_64-w64-mingw32/include/SDL3/SDL_rect.h:
-
-D:/Progettini/DaringEngine/SDL3-3.4.4/x86_64-w64-mingw32/include/SDL3/SDL_render.h:
 
 D:/Progettini/DaringEngine/SDL3-3.4.4/x86_64-w64-mingw32/include/SDL3/SDL_scancode.h:
 

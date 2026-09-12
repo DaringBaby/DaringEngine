@@ -1,6 +1,7 @@
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
 #include <SDL3/SDL_test_font.h>
+#include <iterator>
 #include <string>
 #include <vector>
 #include "SDL3/SDL_events.h"
@@ -28,7 +29,7 @@ uint8_t player_facing;
 Uint64 last_time = SDL_GetTicksNS();
 
 float delta_time = 0.0f;
-uint8_t game_state = 0; // 0: none, 1: battle, 2: menu, 3: status, 4: item menu, 5: use item, 6: select party member to use item, 7: equip menu, 8: equip list
+uint8_t game_state = 0; // 0: none, 1: battle, 2: menu, 3: status, 4: item menu, 5: use item, 6: select party member to use item, 7: equip menu, 8: equip list, 9: magic select member, 10: magic list, 11: use magic
 uint8_t menu_option = 0;
 uint8_t status_option = 0;
 uint8_t item_option = 0;
@@ -37,12 +38,15 @@ uint8_t party_option = 0;
 uint8_t equip_char_option = 0;
 uint8_t equip_piece_option = 0;
 uint8_t equip_list_option = 0;
+uint8_t magic_char_option = 0;
+uint8_t magic_list_option = 0;
+uint8_t magic_useto_option = 0;
 
 bool can_move = true;
 
 int first_item = 0;
 uint8_t first_equip = 0;
-
+uint8_t first_magic = 0;
 std::vector<Entity> npcs;
 std::vector<Character> party;
 std::vector<Attack> atks;
@@ -103,8 +107,10 @@ void equip_list_choices(SDL_Event event);
 void draw_equip_list(SDL_Renderer* renderer);
 void load_available_equip(uint8_t equip_piece);
 std::string find_equip_description();
-
-
+void magic_party_choices(SDL_Event event);
+void draw_magic_party(SDL_Renderer* renderer);
+void magic_list_choices(SDL_Event event);
+void draw_magic_list(SDL_Renderer* renderer);
 Character chara("Pasquel", "Knight", 5, 20, 7, 10, 7, 9, 5, 3, 2, atks, "NONE");
 Character chara2("Babbo", "Hero", 5, 20, 7, 10, 7, 9, 5, 3, 2, atks, "NONE");
 Character chara3("Pisnul", "Pippone", 5, 20, 7, 10, 7, 9, 5, 3, 2, atks, "NONE");
@@ -253,6 +259,12 @@ int main(int argc, char* argv[]) {
                         break;
                     case 8:
                         equip_list_choices(event);
+                        break;
+                    case 9:
+                        magic_party_choices(event);
+                        break;
+                    case 10:
+                        magic_list_choices(event);
                 }
 
                 if (event.key.scancode == SDL_SCANCODE_E && event.key.repeat == 0) {
@@ -528,6 +540,12 @@ void draw_menu(SDL_Renderer* renderer) {
     if (game_state == 8) {
         draw_equip_list(renderer);
     }
+    if (game_state == 9) {
+        draw_magic_party(renderer);
+    }
+    if (game_state == 10) {
+        draw_magic_list(renderer);
+    }
 }
 
 void menu_choices(SDL_Event event) {
@@ -549,6 +567,9 @@ void menu_choices(SDL_Event event) {
                 break;
             case 2:
                 game_state = 7;
+                break;
+            case 3:
+                game_state = 9;
                 break;
             case 6:
                 menu_option = 0;
@@ -1051,7 +1072,7 @@ void draw_equip_list(SDL_Renderer* renderer) {
     // arrow
     SDL_Surface* arrow = SDL_LoadBMP("img/sprites/prova/arrow.bmp");
     SDL_Texture* arrow_equip_list = SDL_CreateTextureFromSurface(renderer, arrow);
-    SDL_FRect arr_equip_list_rect = {228.0f, 80.0f + 16*(equip_list_option - first_equip), 16.0f, 16.0f };
+    SDL_FRect arr_equip_list_rect = {228.0f, 80.0f + 32*(equip_list_option - first_equip), 16.0f, 16.0f };
     SDL_RenderTexture(renderer, arrow_equip_list, NULL, &arr_equip_list_rect);
     // desc
     SDL_FRect item_desc = { 32.0f, 368.0f, 416.0f, 80.0f };
@@ -1060,7 +1081,7 @@ void draw_equip_list(SDL_Renderer* renderer) {
     draw_line(renderer, 48.0f, 384.0f, (available_equip[equip_list_option].get_description().c_str()));
     //
     for (int i = 0; i+first_equip < std::size(available_equip) && i < 8; i++) {
-        draw_line(renderer, 248.0f, 80.0f + 16.0f * i, (available_equip[first_equip + i].get_name()).c_str());
+        draw_line(renderer, 248.0f, 80.0f + 32.0f * i, (available_equip[first_equip + i].get_name()).c_str());
     }
 
     return;
@@ -1091,4 +1112,88 @@ std::string find_equip_description() {
         }
     }
     return "?";
+}
+
+void magic_party_choices(SDL_Event event) {
+    if (event.key.scancode == SDL_SCANCODE_UP && magic_char_option > 0) {
+        magic_char_option--;
+    }
+    else if (event.key.scancode == SDL_SCANCODE_DOWN && magic_char_option < std::size(party)-1) {
+        magic_char_option++;
+    }
+    else if (event.key.scancode == SDL_SCANCODE_ESCAPE) {
+        magic_char_option = 0;
+        game_state = 2;
+    }
+    // else if (event.key.scancode == SDL_SCANCODE_E && std::size(party[magic_char_option].get_attacks()) > 0)
+    else if (event.key.scancode == SDL_SCANCODE_E) {
+        game_state = 10;
+    }
+}
+
+void draw_magic_party(SDL_Renderer* renderer) {
+    // party rectangle
+    SDL_FRect party_rect = { 224.0f, 64.0f, 160.0f, 144.0f };
+    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+    SDL_RenderFillRect(renderer, &party_rect);
+    // party names
+    for (uint8_t i = 0; i < std::size(party); i++) {
+        draw_line(renderer, 248.0f, 80.0f + (i*32), party[i].get_name().c_str());
+    }
+    // arrow
+    SDL_Surface* arrow = SDL_LoadBMP("img/sprites/prova/arrow.bmp");
+    SDL_Texture* arrow_mp = SDL_CreateTextureFromSurface(renderer, arrow);
+    SDL_FRect arr_equip_list_rect = {228.0f, 80.0f + 32*(magic_char_option), 16.0f, 16.0f };
+    SDL_RenderTexture(renderer, arrow_mp, NULL, &arr_equip_list_rect);
+}
+
+void magic_list_choices(SDL_Event event) {
+    if (event.key.scancode == SDL_SCANCODE_UP && magic_list_option > first_magic) {
+        magic_list_option--;
+    }
+    else if (event.key.scancode == SDL_SCANCODE_DOWN && magic_list_option < first_magic+7 && magic_list_option < std::size(party[magic_char_option].get_attacks())) {
+        magic_list_option++;
+    }
+    else if (event.key.scancode == SDL_SCANCODE_S && std::size(party[magic_char_option].get_attacks()) >= first_magic+7) {
+        first_magic += 8;
+        magic_list_option = first_magic;
+    }
+    else if (event.key.scancode == SDL_SCANCODE_ESCAPE) {
+        magic_list_option = 0;
+        first_magic = 0;
+        game_state = 9;
+    }
+    else if (event.key.scancode == SDL_SCANCODE_E) {
+        game_state = 10;
+    }
+}
+
+void draw_magic_list(SDL_Renderer* renderer) {
+    // menu bg
+    SDL_FRect magic_menu = { 224.0f, 64.0f, 224.0f, 272.0f };
+    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+    SDL_RenderFillRect(renderer, &magic_menu);
+
+    if (party[magic_char_option].get_attacks().empty()) {
+        draw_line(renderer, 248.0f, 80.0f, "- No magic -");
+        return;
+    }
+
+    // arrow
+    SDL_Surface* arrow = SDL_LoadBMP("img/sprites/prova/arrow.bmp");
+    SDL_Texture* arrow_magic_list = SDL_CreateTextureFromSurface(renderer, arrow);
+    SDL_FRect arr_magic_list_rect = {228.0f, 80.0f + 32*(magic_list_option - first_magic), 16.0f, 16.0f };
+    SDL_RenderTexture(renderer, arrow_magic_list, NULL, &arr_magic_list_rect);
+
+    SDL_FRect magic_desc = { 32.0f, 368.0f, 416.0f, 80.0f };
+    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+    SDL_RenderFillRect(renderer, &magic_desc);
+    draw_line(renderer, 48.0f, 384.0f, party[magic_char_option].get_attacks()[magic_list_option].get_desc().c_str());
+
+    for (int i = 0; i+first_magic < std::size(party[magic_char_option].get_attacks()) && i < 8; i++) {
+        draw_line(renderer, 248.0f, 80.0f + 32.0f * i, (party[magic_char_option].get_attacks()[magic_list_option].get_name()).c_str());
+        draw_line(renderer, 312.0f, 96.0f + 32.0f * i, ("Cost: " + std::to_string(party[magic_char_option].get_attacks()[magic_list_option].get_cost())).c_str());
+    }
+
+    return;
 }
